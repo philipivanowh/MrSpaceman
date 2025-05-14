@@ -1,13 +1,12 @@
 public abstract class Entity {
     
     public Entity(float x, float y){
-        this.x = x;
-        this.y = y;
+        pos.x = x;
+        pos.y = y;
     }
 
-    protected float x;
-    protected float y;
+    protected Vector2D pos = new Vector2D();
+    protected Vector2D vel = new Vector2D();
+
     protected float angle;
-    protected float vx;
-    protected float vy;
 }

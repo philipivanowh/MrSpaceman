@@ -1,102 +1,168 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Random;
 import javax.swing.*;
 
-
-public class Orbitor extends JPanel implements ActionListener, Runnable{
-    private boolean runGame = true;
-    private Input input;
-    private Player player;
-
-    Thread gameThread;
-
-    //Player ship
+public class Orbitor extends JPanel implements ActionListener, Runnable {
+	private boolean runGame = true;
+	private Input input;
+	private Player player;
+	private Camera camera;
 
 
-    
+	private static final int INITIAL_RADIUS = 150;
+	private static final int RECURSION_DEPTH = 4;
+
+	Thread gameThread;
+
+	ArrayList<Planet> planets = new ArrayList<Planet>();
+	private final int MAX_NUM_PLANET = 100;
+
+	// Player ship
+
+	Orbitor() {
+
+		setPreferredSize(new Dimension(Constant.WINDOW_WIDTH, Constant.WINDOW_HEIGHT));
+		this.setBackground(Constant.SPACE_COLOR);
+
+		// make sure we can get key events
+		setFocusable(true);
+		requestFocusInWindow();
+
+		input = new Input();
+		addKeyListener(input);
+		addMouseListener(input);
+		addMouseMotionListener(input);
+		// Input focus
+		requestFocus();
+
+		initClasses();
+
+		StartGame();
+
+	}
+
+	private void initClasses() {
+		player = new Player(700, 700);
+		camera = new Camera(0,0);
+
+		 Input.setCamera(camera);
+	}
+
+	private void StartGame() {
+		//GeneratePlanetCoord();
+		gameThread = new Thread(this);
+		gameThread.start();
+
+	}
+
+	public void GeneratePlanetCoord() {
+		for(int i = 0; i < MAX_NUM_PLANET; i++){
+			Random planetRandX = new Random();
+			Random planetRandY = new Random();
+			Random planetRandsize = new Random();
+
+			Planet newPlanet = new Planet(planetRandX.nextInt(Constant.GAME_WIDTH-100),planetRandY.nextInt(Constant.GAME_HEIGHT-100),planetRandsize.nextInt(1000-100 + 1) + 100);
+			planets.add(newPlanet);
 
 
 
-    Orbitor(){
+		}
+	}
 
-       
-        setPreferredSize(new Dimension(Constant.WINDOW_WIDTH,Constant.WINDOW_HEIGHT));
-        this.setBackground(Constant.SPACE_COLOR);
+	@Override
+	public void run() {
 
-       
-        // make sure we can get key events
-        setFocusable(true);
-        requestFocusInWindow();
+		final double nsPerSecond = 1_000_000_000.0;
+		long lastTime = System.nanoTime();
+		double accumulator = 0;
+		double nsPerFrame = nsPerSecond / Constant.FPS_SET;
 
-        input = new Input();
-        addKeyListener(input);
-        addMouseListener(input);
-        addMouseMotionListener(input);
-        //Input focus
-        requestFocus();
+		while (runGame) {
+			long now = System.nanoTime();
+			double delta = now - lastTime;
+			lastTime = now;
+			accumulator += delta;
 
-        initClasses();
-      
+			// only update & repaint when enough time has passed
+			while (accumulator >= nsPerFrame) {
+				double seconds = nsPerFrame / nsPerSecond;
+				update((float) seconds);
+				repaint();
+				accumulator -= nsPerFrame;
+			}
+		}
+	}
 
-        StartGame();
-       
-    }
+	public void update(float deltaSeconds) {
 
-    private void initClasses(){
-        player = new Player(700,500);
-    }
+		camera.tick(player);
 
-    private void StartGame(){
+		player.update(deltaSeconds);
+	}
 
-       gameThread = new Thread(this);
-       gameThread.start();
-       
-    }
+	@Override
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		render(g);
+	}
 
-    @Override
-    public void run(){
+	public void render(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g.create();
 
-        final double nsPerSecond = 1_000_000_000.0;
-    long lastTime = System.nanoTime();
-    double accumulator = 0;
-    double nsPerFrame = nsPerSecond / Constant.FPS_SET;
+		 g2.translate(-camera.getX(), -camera.getY());
+		 // draw the fixed planet system
+        drawPlanet(g2);
 
-    while (runGame) {
-        long now = System.nanoTime();
-        double delta = now - lastTime;
-        lastTime = now;
-        accumulator += delta;
+		player.render(g2);
 
-        // only update & repaint when enough time has passed
-        while (accumulator >= nsPerFrame) {
-            double seconds = nsPerFrame / nsPerSecond;
-            update(seconds);
-            repaint();
-            accumulator -= nsPerFrame;
-        }
-    }
-}
+		g2.dispose();
+	}
 
- 
-   public void update(double deltaSeconds) {
-    player.update(deltaSeconds);
-}
+	/**
+	 * Recursively draws a planet (filled circle) at (x,y) with the given radius.
+	 * Then spawns a few smaller child "planets" around it.
+	 *
+	 * @param g2d    the graphics context
+	 * @param x      center X
+	 * @param y      center Y
+	 * @param radius radius of this planet
+	 * @param depth  how many more levels to recurse
+	 */
+	private void drawPlanet(Graphics2D g2d){
 
-    @Override
-    public void paintComponent(Graphics g){
-        super.paintComponent(g);
-        render(g);
-    }
+		g2d.fillOval(1000, 1000, 100, 100);
+		
+		g2d.fillOval(6000, 200, 500, 500);
+		
+		g2d.fillOval(2000, 3000, 200, 200);
+		
+		g2d.fillOval(100, 500, 700, 700);
+		
+		g2d.fillOval(4000, 1000, 1000, 1000);
+		
+		g2d.fillOval(1000, 7100, 600, 600);
+		
+		g2d.fillOval(3000, 2000, 100, 100);
+		
+		g2d.fillOval(5000, 2000, 1000, 1000);
+		for(Planet planet : planets){
+			planet.render(g2d);
+		}
+		
 
-    public void render(Graphics g){
-      player.render(g);
-    }
 
-    @Override
-    public void actionPerformed(ActionEvent e){
-        repaint();
-    }
+	}
 
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		repaint();
+
+		
+	}
+
+	
 
 }

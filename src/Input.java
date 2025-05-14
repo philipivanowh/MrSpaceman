@@ -5,133 +5,80 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-public class Input implements KeyListener, MouseListener, MouseMotionListener{
+public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
-    //Keyboard inputs
-    public static final int LEFT = 0;
-    public static final int RIGHT = 1;
-    public static final int UP = 2;
-    public static final int DOWN = 3;
-    public static final int SPACE = 4;
+    // Store Keyboard keys state pressed = true, false otherwise
+    public static boolean[] keys = new boolean[1000];
+    public static int UP = 87;
+    public static int W = 38;
 
-    public static boolean[] keys = new boolean[5];
-
-
-    //Mouse inputs
-    public static int mouseX, mouseY;
-    public static boolean mouseDown;
-
-
-
-
-   @Override
-public void keyPressed(KeyEvent e) {
-    switch (e.getKeyCode()) {
+    // Mouse inputs
+    public static Vector2D mouseInput = new Vector2D();
     
-         //Going Left
-        case KeyEvent.VK_LEFT:
-            keys[LEFT] = true;
-            break;
-        case  KeyEvent.VK_A:
-            keys[LEFT] = true;
-            break;
+    private static boolean mouseDown;
 
-        //Going Right
-        case KeyEvent.VK_RIGHT:
-            keys[RIGHT] = true;
-            break;
-        case KeyEvent.VK_D:
-            keys[RIGHT] = true;
-            break;
-        //Going Up
-        case KeyEvent.VK_UP:
-            keys[UP] = true;
-            break;
-        case KeyEvent.VK_W:
-            keys[UP] = true;
-            break;
+     // a reference to camera
+    private static Camera camera;
 
-        //Going Down
-        case KeyEvent.VK_DOWN:
-            keys[DOWN] = true;
-            break;
-        case KeyEvent.VK_S:
-            keys[DOWN] = true;
-            break;
-     
-    
-        case KeyEvent.VK_SPACE:
-            keys[SPACE] = true;
-            break;
-    
-
+       /** call this once after you create your camera: */
+    public static void setCamera(Camera cam) {
+        camera = cam;
     }
-}
 
-// You can leave keyTyped empty or remove the exception
-@Override
-public void keyTyped(KeyEvent e) { }
 
-@Override
-public void keyReleased(KeyEvent e) {
-    switch (e.getKeyCode()) {
+    public static boolean isThrusting() {
+        return keys[KeyEvent.VK_W] || keys[KeyEvent.VK_UP];
+    }
 
-        //Going Left
-        case KeyEvent.VK_LEFT:
-            keys[LEFT] = false;
-            break;
-        case  KeyEvent.VK_A:
-            keys[LEFT] = false;
-            break;
+    public static boolean isMouseClicked(){
+        return mouseDown;
+    }
 
-        //Going Right
-        case KeyEvent.VK_RIGHT:
-            keys[RIGHT] = false;
-            break;
-        case KeyEvent.VK_D:
-            keys[RIGHT] = false;
-            break;
-        //Going Up
-        case KeyEvent.VK_UP:
-            keys[UP] = false;
-            break;
-        case KeyEvent.VK_W:
-            keys[UP] = false;
-            break;
+    public static Vector2D getMouseInput(){
+         if (camera != null) {
+            return new Vector2D(
+                mouseInput.x + camera.getX(),
+                 mouseInput.y + camera.getY()
+            );
+        } else {
+            // fallback if camera isn’t set yet
+            return new Vector2D( mouseInput.x,  mouseInput.y);
+        }
+    }
 
-        //Going Down
-        case KeyEvent.VK_DOWN:
-            keys[DOWN] = false;
-            break;
-        case KeyEvent.VK_S:
-            keys[DOWN] = false;
-            break;
-     
-    
-        case KeyEvent.VK_SPACE:
-            keys[SPACE] = false;
-            break;
-    
+
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+       keys[e.getKeyCode()] = true;
+    }
+
+    // You can leave keyTyped empty or remove the exception
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        keys[e.getKeyCode()] = false;
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        mouseInput = new Vector2D(e.getX(),e.getY());
+
+   
+
         
     }
-}
-
-@Override
-public void mouseDragged(MouseEvent e) {
-}
-
-@Override
-public void mouseMoved(MouseEvent e) {
-    mouseX = e.getX();
-   
-    mouseY = e.getY();
-
-     System.out.println(mouseX+" "+ mouseY);
-}
 
     @Override
     public void mouseClicked(MouseEvent e) {
-       System.out.println("Mouse clicked!");
+        System.out.println("Mouse clicked!");
     }
 
     @Override
@@ -144,12 +91,12 @@ public void mouseMoved(MouseEvent e) {
         mouseDown = false;
     }
 
-@Override
-public void mouseEntered(MouseEvent e) {
-}
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
 
-@Override
-public void mouseExited(MouseEvent e) {
-}
-    
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
+
 }

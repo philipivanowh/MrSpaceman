@@ -3,10 +3,9 @@ import javax.swing.JFrame;
 public class App {
     public static void main(String[] args) throws Exception {
 
-
         JFrame frame = new JFrame("Orbitor");
-   
-        frame.setSize(Constant.WINDOW_WIDTH,Constant.WINDOW_HEIGHT);
+
+        frame.setSize(Constant.WINDOW_WIDTH, Constant.WINDOW_HEIGHT);
 
         frame.setLocation(0, 0);
         frame.setResizable(false);
@@ -18,8 +17,6 @@ public class App {
         frame.pack();
         frame.setVisible(true);
         frame.setLayout(null);
-    
-
 
     }
 }
