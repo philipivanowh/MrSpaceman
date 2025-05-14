@@ -19,9 +19,10 @@ public class Vector2D {
     }
 
     // Multiply the vector
-    public void multiply(float factor) {
+    public Vector2D multiply(float factor) {
         x *= factor;
         y *= factor;
+        return this;
     }
 
     // Divide the vector

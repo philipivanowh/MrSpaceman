@@ -14,7 +14,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
     // Mouse inputs
     public static Vector2D mouseInput = new Vector2D();
-    
+
     private static boolean mouseDown;
 
      // a reference to camera
@@ -34,16 +34,20 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
         return mouseDown;
     }
 
-    public static Vector2D getMouseInput(){
-         if (camera != null) {
+    public static Vector2D getMouseRelativeToScreen(){
+            return new Vector2D(
+                mouseInput.x,
+                 mouseInput.y
+            );
+        
+    }
+
+    public static Vector2D getMouseRelativeToWorld(){
             return new Vector2D(
                 mouseInput.x + camera.getX(),
                  mouseInput.y + camera.getY()
             );
-        } else {
-            // fallback if camera isn’t set yet
-            return new Vector2D( mouseInput.x,  mouseInput.y);
-        }
+        
     }
 
 

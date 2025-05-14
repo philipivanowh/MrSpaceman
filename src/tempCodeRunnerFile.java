@@ -1,0 +1,1 @@
+JLabel coord = new JLabel("", 20);

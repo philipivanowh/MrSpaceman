@@ -11,6 +11,10 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 	private Player player;
 	private Camera camera;
 
+	//JLabel coord = new JLabel("", 20);
+	
+
+
 
 	private static final int INITIAL_RADIUS = 150;
 	private static final int RECURSION_DEPTH = 4;
@@ -41,12 +45,17 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 		initClasses();
 
 		StartGame();
+		this.setLayout(null);
 
 	}
 
 	private void initClasses() {
 		player = new Player(700, 700);
 		camera = new Camera(0,0);
+
+		//coord.setBounds(1000,100,100,100);
+
+	//	this.add(coord);
 
 		 Input.setCamera(camera);
 	}
@@ -66,8 +75,6 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 
 			Planet newPlanet = new Planet(planetRandX.nextInt(Constant.GAME_WIDTH-100),planetRandY.nextInt(Constant.GAME_HEIGHT-100),planetRandsize.nextInt(1000-100 + 1) + 100);
 			planets.add(newPlanet);
-
-
 
 		}
 	}
@@ -101,6 +108,9 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 		camera.tick(player);
 
 		player.update(deltaSeconds);
+
+	//	coord.setText(player.pos.toString());
+
 	}
 
 	@Override

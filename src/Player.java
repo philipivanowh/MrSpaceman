@@ -32,7 +32,7 @@ public class Player extends Entity {
     }
 
     private void updateInput() {
-        mouseInput = Input.getMouseInput();
+        mouseInput = Input.getMouseRelativeToWorld();
        
 
     }
