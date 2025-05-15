@@ -1,6 +1,9 @@
+package Game;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.constant.Constable;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
@@ -12,12 +15,6 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 	private Camera camera;
 
 	//JLabel coord = new JLabel("", 20);
-	
-
-
-
-	private static final int INITIAL_RADIUS = 150;
-	private static final int RECURSION_DEPTH = 4;
 
 	Thread gameThread;
 
@@ -50,12 +47,27 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 	}
 
 	private void initClasses() {
-		player = new Player(700, 700);
+		player = new Player(Constant.GAME_WIDTH/2, Constant.GAME_HEIGHT/2);
 		camera = new Camera(0,0);
 
-		//coord.setBounds(1000,100,100,100);
+		planets.add(new Planet(1000, 1000, 100));
+		
+		planets.add(new Planet(6000, 200,  500));
+		
+		planets.add(new Planet(2000, 3000,  200));
+		
+		planets.add(new Planet(100, 500,  700));
+		
+		planets.add(new Planet(4000, 1000, 1000));
+		
+		planets.add(new Planet(1000, 7100, 600));
+		
+		planets.add(new Planet(3000, 2000, 100));
+		
+		planets.add(new Planet(5000, 2000, 1000));
+		
+		planets.add(new Planet(1000,1000,100));
 
-	//	this.add(coord);
 
 		 Input.setCamera(camera);
 	}
@@ -78,6 +90,8 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 
 		}
 	}
+
+
 
 	@Override
 	public void run() {
@@ -128,6 +142,15 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 
 		player.render(g2);
 
+		  /* ---------- 2) fixed HUD overlay ---------- */
+    Graphics2D hud = (Graphics2D) g;                   // uses panel coords (0,0 at top-left)
+    hud.setColor(Color.WHITE);
+    hud.setFont(new Font("Consolas", Font.PLAIN, 14));
+
+    String msg = String.format("x: %.0f   y: %.0f   θ: %.1f°",
+                               player.pos.x, player.pos.y, player.angle);
+    hud.drawString(msg, 10, 20);    
+
 		g2.dispose();
 	}
 
@@ -143,21 +166,8 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 	 */
 	private void drawPlanet(Graphics2D g2d){
 
-		g2d.fillOval(1000, 1000, 100, 100);
 		
-		g2d.fillOval(6000, 200, 500, 500);
 		
-		g2d.fillOval(2000, 3000, 200, 200);
-		
-		g2d.fillOval(100, 500, 700, 700);
-		
-		g2d.fillOval(4000, 1000, 1000, 1000);
-		
-		g2d.fillOval(1000, 7100, 600, 600);
-		
-		g2d.fillOval(3000, 2000, 100, 100);
-		
-		g2d.fillOval(5000, 2000, 1000, 1000);
 		for(Planet planet : planets){
 			planet.render(g2d);
 		}

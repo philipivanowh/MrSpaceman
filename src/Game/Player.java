@@ -1,6 +1,12 @@
+package Game;
+
+import Game.Constant.ThrustType;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import javax.imageio.ImageIO;
 
 public class Player extends Entity {
@@ -9,11 +15,11 @@ public class Player extends Entity {
 
     private static final int SHIP_W = 100; // px after scaling
     private static final int SHIP_H = 100;
-    private static final double SHIP_SPEED = 250.0; // px / s
-    private static final double TURN_SPEED = Math.toRadians(180); // rad / s
-    private static final double ANIM_FPS = 12.0; // frames / s
+    private static final double SHIP_SPEED = 300.0; // px / s
+    private static final double SIDE_SPEED = 150; // rad / s
 
     private final BufferedImage[] frames = new BufferedImage[3];
+
     private int frameIndex = 0;
     private double frameTimer = 0; // seconds until next frame
 
@@ -26,6 +32,12 @@ public class Player extends Entity {
     // dead-zone value
     private static final double ANGLE_DEADZONE = Math.toRadians(1); // ~1°
 
+    // Smoke Trail Particle
+    // private BufferedImage smokeTrailFrame = new BufferedImage(10, 10,
+    // BufferedImage.TYPE_INT_ARGB);
+
+    private List<TrailParticle> particles = new ArrayList<>();
+
     public Player(float x, float y) {
         super(x, y);
         loadImages();
@@ -33,14 +45,25 @@ public class Player extends Entity {
 
     private void updateInput() {
         mouseInput = Input.getMouseRelativeToWorld();
-       
 
+    }
+
+    private void updateParticles() {
+        Iterator<TrailParticle> it = particles.iterator();
+        while (it.hasNext()) {
+            TrailParticle p = it.next();
+            p.update();
+            if (!p.isAlive()) {
+                it.remove();
+            }
+        }
     }
 
     public void update(double dt) {
 
-         System.out.println(pos);
+        System.out.println(pos);
         updateInput();
+        updateParticles();
         // rotation
         // if (Input.keys[Input.LEFT]) angle -= TURN_SPEED * dt;
         // if (Input.keys[Input.RIGHT]) angle += TURN_SPEED * dt;
@@ -67,6 +90,24 @@ public class Player extends Entity {
 
             vel.x += Math.cos(angle) * SHIP_SPEED * dt;
             vel.y += Math.sin(angle) * SHIP_SPEED * dt;
+
+            // spawn a new trail particle just below the ship
+            particles.add(new TrailParticle(pos.x, pos.y, angle, ThrustType.CENTER));
+        }
+
+        if (Input.isLeftThrusting()) {
+
+            vel.x += Math.sin(angle) * SIDE_SPEED * dt;
+            vel.y += -Math.cos(angle) * SIDE_SPEED * dt;
+
+            particles.add(new TrailParticle(pos.x, pos.y, angle, ThrustType.LEFT));
+        }
+
+        if (Input.isRightThrusting()) {
+            vel.x += -Math.sin(angle) * SIDE_SPEED * dt;
+            vel.y += Math.cos(angle) * SIDE_SPEED * dt;
+
+            particles.add(new TrailParticle(pos.x, pos.y, angle, ThrustType.RIGHT));
         }
 
         // Damping the velocity
@@ -76,24 +117,22 @@ public class Player extends Entity {
         pos.x += vel.x * dt;
         pos.y += vel.y * dt;
 
-        if (pos.x < 0)
+        // Boarder control
+        if (pos.x < 0) {
             pos.x = 0;
-        if (pos.x > Constant.GAME_WIDTH-100)
-            pos.x = Constant.GAME_WIDTH-100;
-        if (pos.y < 0)
-            pos.y = 0;
-        if (pos.y > Constant.GAME_HEIGHT-100)
-            pos.y = Constant.GAME_HEIGHT-100;
-
-        // engine animation
-        boolean thrusting = Input.isThrusting();
-        frameTimer -= dt;
-        if (thrusting && frameTimer <= 0) {
-            frameIndex = (frameIndex + 1) % 3;
-            frameTimer = 1.0 / ANIM_FPS;
+            vel.x = 0;
         }
-        if (!thrusting) {
-            frameIndex = 0; // no frame when you’re not thrusting
+        if (pos.x > Constant.GAME_WIDTH - 100) {
+            pos.x = Constant.GAME_WIDTH - 100;
+            vel.x = 0;
+        }
+        if (pos.y < 0) {
+            pos.y = 0;
+            vel.y = 0;
+        }
+        if (pos.y > Constant.GAME_HEIGHT - 100) {
+            pos.y = Constant.GAME_HEIGHT - 100;
+            vel.y = 0;
         }
 
     }
@@ -109,9 +148,8 @@ public class Player extends Entity {
 
     private void velocityDecay(double dt) {
 
-        if (vel.length()>.1) {
-            float D = 0.90f; // velocity after 1 second
-            float factor = (float) Math.pow(D, dt); 
+        if (vel.length() > .1) {
+            float factor = (float) Math.pow(decays, dt);
             if (Math.abs(vel.x) > .1)
                 vel.x *= factor;
             else
@@ -122,26 +160,36 @@ public class Player extends Entity {
             else
                 vel.y = 0;
         } else {
-           vel = Vector2D.ZERO;
+            vel = Vector2D.ZERO;
         }
 
     }
 
+    // Rendering the player and create a sprite
+    @Override
     public void render(Graphics2D g2) {
-          AffineTransform old = g2.getTransform();
+        AffineTransform old = g2.getTransform();
 
-    // move to the ship’s center (world coords)
-    g2.translate(pos.x, pos.y);
-    // then rotate around its own center
-    g2.rotate(angle + Math.PI/2);
+        // move to the ship’s center (world coords)
+        g2.translate(pos.x, pos.y);
+        // then rotate around its own center
+        g2.rotate(angle + Math.PI / 2);
 
-    BufferedImage sprite = frames[frameIndex];
-    g2.drawImage(sprite,
-        -sprite.getWidth()/2,
-        -sprite.getHeight()/2,
-        null);
+        BufferedImage sprite = frames[frameIndex];
+        g2.drawImage(sprite,
+                -sprite.getWidth() / 2,
+                -sprite.getHeight() / 2,
+                null);
 
-    g2.setTransform(old);
+        g2.setTransform(old);
+
+        renderParticle(g2);
+    }
+
+    public void renderParticle(Graphics2D g2) {
+        for (TrailParticle p : particles) {
+            p.render(g2);
+        }
     }
 
     // Load the images from the source
@@ -149,9 +197,17 @@ public class Player extends Entity {
 
         try {
 
-            frames[0] = scale(ImageIO.read(getClass().getResource("/Rocket/Layer 1_rocket1.png")));
-            frames[1] = scale(ImageIO.read(getClass().getResource("/Rocket/Layer 1_rocket2.png")));
-            frames[2] = scale(ImageIO.read(getClass().getResource("/Rocket/Layer 1_rocket3.png")));
+            /*
+             * frames[0] =
+             * scale(ImageIO.read(getClass().getResource("/Rocket/Layer 1_rocket1.png")));
+             * frames[1] =
+             * scale(ImageIO.read(getClass().getResource("/Rocket/Layer 1_rocket2.png")));
+             * frames[2] =
+             * scale(ImageIO.read(getClass().getResource("/Rocket/Layer 1_rocket3.png")));
+             */
+            frames[0] = scale(ImageIO.read(getClass().getResource("/Rocket/Rocket0.png")));
+            // smokeTrailFrame =
+            // scale(ImageIO.read(getClass().getResource("/Rocket/sprite_1")));
 
         } catch (Exception ex) {
             ex.printStackTrace();

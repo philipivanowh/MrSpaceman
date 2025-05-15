@@ -1,3 +1,4 @@
+package Game;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -9,8 +10,6 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
     // Store Keyboard keys state pressed = true, false otherwise
     public static boolean[] keys = new boolean[1000];
-    public static int UP = 87;
-    public static int W = 38;
 
     // Mouse inputs
     public static Vector2D mouseInput = new Vector2D();
@@ -30,6 +29,14 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
         return keys[KeyEvent.VK_W] || keys[KeyEvent.VK_UP];
     }
 
+    public static boolean isLeftThrusting(){
+        return keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A];
+    }
+
+    public static boolean isRightThrusting(){
+        return keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D];
+    }
+
     public static boolean isMouseClicked(){
         return mouseDown;
     }
@@ -37,7 +44,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
     public static Vector2D getMouseRelativeToScreen(){
             return new Vector2D(
                 mouseInput.x,
-                 mouseInput.y
+                mouseInput.y
             );
         
     }
@@ -45,7 +52,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
     public static Vector2D getMouseRelativeToWorld(){
             return new Vector2D(
                 mouseInput.x + camera.getX(),
-                 mouseInput.y + camera.getY()
+                mouseInput.y + camera.getY()
             );
         
     }
