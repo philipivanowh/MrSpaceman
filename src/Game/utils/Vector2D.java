@@ -1,5 +1,4 @@
-package Game;
-
+package Game.utils;
 /*
 * Implementation of 2D Vector to assit in readibility and calculation within the program
 */

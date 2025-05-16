@@ -1,6 +1,9 @@
 package Game;
 
+import Game.Constant.GAME_CONSTANT;
+import Game.Constant.PLAYER_CONST;
 import Game.Constant.ThrustType;
+import Game.utils.Vector2D;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -11,13 +14,7 @@ import javax.imageio.ImageIO;
 
 public class Player extends Entity {
 
-    private static final float decays = .9f;
-
-    private static final int SHIP_W = 100; // px after scaling
-    private static final int SHIP_H = 100;
-    private static final double SHIP_SPEED = 300.0; // px / s
-    private static final double SIDE_SPEED = 150; // rad / s
-
+    //Plaer Image
     private final BufferedImage[] frames = new BufferedImage[3];
 
     private int frameIndex = 0;
@@ -25,29 +22,20 @@ public class Player extends Entity {
 
     private Vector2D mouseInput = new Vector2D();
 
-    // Rotational dampening PID
-    // how fast you can turn (radians per second)
-    private static final double MAX_TURN_SPEED = Math.toRadians(360);
-
-    // dead-zone value
-    private static final double ANGLE_DEADZONE = Math.toRadians(1); // ~1°
-
-    // Smoke Trail Particle
-    // private BufferedImage smokeTrailFrame = new BufferedImage(10, 10,
-    // BufferedImage.TYPE_INT_ARGB);
-
     private List<TrailParticle> particles = new ArrayList<>();
 
     public Player(float x, float y) {
-        super(x, y);
+        super(x, y,10);
         loadImages();
     }
 
+    //Update the input for the player
     private void updateInput() {
         mouseInput = Input.getMouseRelativeToWorld();
 
     }
 
+    //Update the smoke particles
     private void updateParticles() {
         Iterator<TrailParticle> it = particles.iterator();
         while (it.hasNext()) {
@@ -61,7 +49,6 @@ public class Player extends Entity {
 
     public void update(double dt) {
 
-        System.out.println(pos);
         updateInput();
         updateParticles();
         // rotation
@@ -77,35 +64,35 @@ public class Player extends Entity {
         double error = clampAngle(targetAngle - angle);
 
         // 2) only turn if the error is outside the dead-zone
-        if (Math.abs(error) > ANGLE_DEADZONE) {
+        if (Math.abs(error) > PLAYER_CONST.ANGLE_DEADZONE) {
             // clamp your turn to MAX_TURN_SPEED * dt
-            double maxDelta = MAX_TURN_SPEED * dt;
+            double maxDelta = PLAYER_CONST.MAX_TURN_SPEED * dt;
             double delta = Math.signum(error) * Math.min(Math.abs(error), maxDelta);
             angle = (float) clampAngle(angle + delta);
         }
 
-        // thrust
+        // main thrust
         if (Input.isThrusting()) {
             // double radians = Math.toRadians(angle);
 
-            vel.x += Math.cos(angle) * SHIP_SPEED * dt;
-            vel.y += Math.sin(angle) * SHIP_SPEED * dt;
+            vel.x += Math.cos(angle) * PLAYER_CONST.SHIP_SPEED * dt;
+            vel.y += Math.sin(angle) * PLAYER_CONST.SHIP_SPEED * dt;
 
             // spawn a new trail particle just below the ship
             particles.add(new TrailParticle(pos.x, pos.y, angle, ThrustType.CENTER));
         }
-
+        //left thrust
         if (Input.isLeftThrusting()) {
 
-            vel.x += Math.sin(angle) * SIDE_SPEED * dt;
-            vel.y += -Math.cos(angle) * SIDE_SPEED * dt;
+            vel.x += Math.sin(angle) * PLAYER_CONST.SIDE_SPEED * dt;
+            vel.y += -Math.cos(angle) * PLAYER_CONST.SIDE_SPEED * dt;
 
             particles.add(new TrailParticle(pos.x, pos.y, angle, ThrustType.LEFT));
         }
-
+        //right thrust
         if (Input.isRightThrusting()) {
-            vel.x += -Math.sin(angle) * SIDE_SPEED * dt;
-            vel.y += Math.cos(angle) * SIDE_SPEED * dt;
+            vel.x += -Math.sin(angle) * PLAYER_CONST.SIDE_SPEED * dt;
+            vel.y += Math.cos(angle) * PLAYER_CONST.SIDE_SPEED * dt;
 
             particles.add(new TrailParticle(pos.x, pos.y, angle, ThrustType.RIGHT));
         }
@@ -122,16 +109,16 @@ public class Player extends Entity {
             pos.x = 0;
             vel.x = 0;
         }
-        if (pos.x > Constant.GAME_WIDTH - 100) {
-            pos.x = Constant.GAME_WIDTH - 100;
+        if (pos.x > GAME_CONSTANT.GAME_WIDTH - 100) {
+            pos.x = GAME_CONSTANT.GAME_WIDTH - 100;
             vel.x = 0;
         }
         if (pos.y < 0) {
             pos.y = 0;
             vel.y = 0;
         }
-        if (pos.y > Constant.GAME_HEIGHT - 100) {
-            pos.y = Constant.GAME_HEIGHT - 100;
+        if (pos.y > GAME_CONSTANT.GAME_HEIGHT - 100) {
+            pos.y = GAME_CONSTANT.GAME_HEIGHT - 100;
             vel.y = 0;
         }
 
@@ -146,10 +133,11 @@ public class Player extends Entity {
         return a;
     }
 
+    //method to decay the velocity of the ship
     private void velocityDecay(double dt) {
 
         if (vel.length() > .1) {
-            float factor = (float) Math.pow(decays, dt);
+            float factor = (float) Math.pow(PLAYER_CONST.VEL_DECAY, dt);
             if (Math.abs(vel.x) > .1)
                 vel.x *= factor;
             else
@@ -197,29 +185,20 @@ public class Player extends Entity {
 
         try {
 
-            /*
-             * frames[0] =
-             * scale(ImageIO.read(getClass().getResource("/Rocket/Layer 1_rocket1.png")));
-             * frames[1] =
-             * scale(ImageIO.read(getClass().getResource("/Rocket/Layer 1_rocket2.png")));
-             * frames[2] =
-             * scale(ImageIO.read(getClass().getResource("/Rocket/Layer 1_rocket3.png")));
-             */
-            frames[0] = scale(ImageIO.read(getClass().getResource("/Rocket/Rocket0.png")));
-            // smokeTrailFrame =
-            // scale(ImageIO.read(getClass().getResource("/Rocket/sprite_1")));
+            frames[0] = scale(ImageIO.read(getClass().getResource("/Images/Rocket.png")));
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            System.err.print("Player Images are not properly loaded");
             System.exit(-1); // fail fast if sprites are missing
         }
     }
 
     // Converting the png to a Buffer Image
     private static BufferedImage scale(BufferedImage src) {
-        BufferedImage dst = new BufferedImage(SHIP_W, SHIP_H, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage dst = new BufferedImage(PLAYER_CONST.SHIP_W, PLAYER_CONST.SHIP_H, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = dst.createGraphics();
-        g2.drawImage(src, 0, 0, SHIP_W, SHIP_H, null);
+        g2.drawImage(src, 0, 0, PLAYER_CONST.SHIP_W, PLAYER_CONST.SHIP_H, null);
         g2.dispose();
         return dst;
     }

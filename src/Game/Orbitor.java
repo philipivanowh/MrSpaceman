@@ -7,6 +7,8 @@ import java.lang.constant.Constable;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
+import Game.utils.*;
+import Game.Constant.GAME_CONSTANT;
 
 public class Orbitor extends JPanel implements ActionListener, Runnable {
 	private boolean runGame = true;
@@ -14,19 +16,20 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 	private Player player;
 	private Camera camera;
 
-	//JLabel coord = new JLabel("", 20);
+	// JLabel coord = new JLabel("", 20);
 
 	Thread gameThread;
 
-	ArrayList<Planet> planets = new ArrayList<Planet>();
+	ArrayList<CelestrialBody> celestrialBodies = new ArrayList<CelestrialBody>();
+	CelestrialBody rootCelestrialBody;
 	private final int MAX_NUM_PLANET = 100;
 
-	// Player ship
+	private final ArrayList<float[]> orbitCoords = new ArrayList<>();
 
 	Orbitor() {
 
-		setPreferredSize(new Dimension(Constant.WINDOW_WIDTH, Constant.WINDOW_HEIGHT));
-		this.setBackground(Constant.SPACE_COLOR);
+		setPreferredSize(new Dimension(GAME_CONSTANT.WINDOW_WIDTH, GAME_CONSTANT.WINDOW_HEIGHT));
+		this.setBackground(GAME_CONSTANT.SPACE_COLOR);
 
 		// make sure we can get key events
 		setFocusable(true);
@@ -47,51 +50,90 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 	}
 
 	private void initClasses() {
-		player = new Player(Constant.GAME_WIDTH/2, Constant.GAME_HEIGHT/2);
-		camera = new Camera(0,0);
+		player = new Player(GAME_CONSTANT.GAME_WIDTH / 2, GAME_CONSTANT.GAME_HEIGHT / 2);
+		camera = new Camera(0, 0);
 
-		planets.add(new Planet(1000, 1000, 100));
-		
-		planets.add(new Planet(6000, 200,  500));
-		
-		planets.add(new Planet(2000, 3000,  200));
-		
-		planets.add(new Planet(100, 500,  700));
-		
-		planets.add(new Planet(4000, 1000, 1000));
-		
-		planets.add(new Planet(1000, 7100, 600));
-		
-		planets.add(new Planet(3000, 2000, 100));
-		
-		planets.add(new Planet(5000, 2000, 1000));
-		
-		planets.add(new Planet(1000,1000,100));
-
-
-		 Input.setCamera(camera);
+		Input.setCamera(camera);
 	}
 
 	private void StartGame() {
-		//GeneratePlanetCoord();
+		GenerateCelestrialBody();
 		gameThread = new Thread(this);
 		gameThread.start();
 
 	}
 
-	public void GeneratePlanetCoord() {
-		for(int i = 0; i < MAX_NUM_PLANET; i++){
-			Random planetRandX = new Random();
-			Random planetRandY = new Random();
-			Random planetRandsize = new Random();
+	public void GenerateCelestrialBody() {
 
-			Planet newPlanet = new Planet(planetRandX.nextInt(Constant.GAME_WIDTH-100),planetRandY.nextInt(Constant.GAME_HEIGHT-100),planetRandsize.nextInt(1000-100 + 1) + 100);
-			planets.add(newPlanet);
+		GenerateCelestrialBody(GAME_CONSTANT.GAME_WIDTH / 2, GAME_CONSTANT.GAME_HEIGHT / 2, 4000, 10000, true, true,
+				30000, 6);
 
-		}
+		rootCelestrialBody = celestrialBodies.get(0);
 	}
 
+	public void GenerateCelestrialBody(int x, int y,
+			int radius, int mass,
+			boolean isSun, boolean isRoot,
+			float distance, int level) {
+		if (level == 0)
+			return;
 
+		Random rand = new Random();
+
+		// decide how many rings (1–3 on 20% chance)
+		int rings = 2;
+		if (!isRoot && rand.nextFloat() < 0.20f) {
+			rings = rand.nextInt(2) + 1;
+		}
+		
+		// add the “body” itself (same as before)…
+		CelestrialBody parent = new CelestrialBody(x, y, radius, mass, isSun, isRoot,new Color((int)(Math.random() * 0x1000000)));
+		celestrialBodies.add(parent);
+		if (isRoot)
+			rootCelestrialBody = parent;
+
+		// now for each ring…
+		for (int ring = 1; ring <= rings; ring++) {
+			float ringDist = distance / (ring*1.5f);
+			int sats = rand.nextInt(2) + 1; // 1–3 satellites
+
+			for (int i = 0; i < sats; i++) {
+				double angle = rand.nextDouble() * Math.PI * 2;
+				int childX = x + (int) (Math.cos(angle) * ringDist);
+				int childY = y + (int) (Math.sin(angle) * ringDist);
+				int childR = radius / 2;
+				int childM = mass / 2;
+
+				// RECORD this orbit’s center + radius
+				
+				if(level >= 5)
+				orbitCoords.add(new float[] { x, y, ringDist - distance / 50 });
+
+				orbitCoords.add(new float[] { x, y, ringDist });
+				
+					if(level >= 5)
+				orbitCoords.add(new float[] { x, y, ringDist + distance / 50 });
+
+				// create the satellite
+				CelestrialBody sat = new CelestrialBody(
+						childX, childY,
+						childR, childM,
+						false, false,
+						new Color((int)(Math.random() * 0x1000000)));
+				celestrialBodies.add(sat);
+
+
+
+				// recurse
+				GenerateCelestrialBody(
+						childX, childY,
+						childR, childM,
+						false, false,
+						ringDist / 1.5f,
+						level - 1);
+			}
+		}
+	}
 
 	@Override
 	public void run() {
@@ -99,7 +141,7 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 		final double nsPerSecond = 1_000_000_000.0;
 		long lastTime = System.nanoTime();
 		double accumulator = 0;
-		double nsPerFrame = nsPerSecond / Constant.FPS_SET;
+		double nsPerFrame = nsPerSecond / GAME_CONSTANT.FPS_SET;
 
 		while (runGame) {
 			long now = System.nanoTime();
@@ -123,7 +165,7 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 
 		player.update(deltaSeconds);
 
-	//	coord.setText(player.pos.toString());
+		// coord.setText(player.pos.toString());
 
 	}
 
@@ -136,20 +178,28 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 	public void render(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g.create();
 
-		 g2.translate(-camera.getX(), -camera.getY());
-		 // draw the fixed planet system
-        drawPlanet(g2);
+		g2.translate(-camera.getX(), -camera.getY());
+
+		// FIRST draw all orbits
+		g2.setColor(new Color(255, 255, 255, 64)); // translucent white
+		for (float[] oc : orbitCoords) {
+			float cx = oc[0], cy = oc[1], r = oc[2];
+			g2.drawOval((int)(cx - r), (int)(cy - r), (int)(r * 2), (int)(r * 2));
+		}
+
+		// draw the fixed planet system
+		drawPlanet(g2);
 
 		player.render(g2);
 
-		  /* ---------- 2) fixed HUD overlay ---------- */
-    Graphics2D hud = (Graphics2D) g;                   // uses panel coords (0,0 at top-left)
-    hud.setColor(Color.WHITE);
-    hud.setFont(new Font("Consolas", Font.PLAIN, 14));
+		/* ---------- 2) fixed HUD overlay ---------- */
+		Graphics2D hud = (Graphics2D) g; // uses panel coords (0,0 at top-left)
+		hud.setColor(Color.WHITE);
+		hud.setFont(new Font("Consolas", Font.PLAIN, 14));
 
-    String msg = String.format("x: %.0f   y: %.0f   θ: %.1f°",
-                               player.pos.x, player.pos.y, player.angle);
-    hud.drawString(msg, 10, 20);    
+		String msg = String.format("x: %.0f   y: %.0f   θ: %.1f°",
+				player.pos.x, player.pos.y, player.angle);
+		hud.drawString(msg, 10, 20);
 
 		g2.dispose();
 	}
@@ -164,15 +214,12 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 	 * @param radius radius of this planet
 	 * @param depth  how many more levels to recurse
 	 */
-	private void drawPlanet(Graphics2D g2d){
+	private void drawPlanet(Graphics2D g2d) {
 
-		
-		
-		for(Planet planet : planets){
-			planet.render(g2d);
+		for (CelestrialBody body : celestrialBodies) {
+			body.render(g2d);
+
 		}
-		
-
 
 	}
 
@@ -180,9 +227,6 @@ public class Orbitor extends JPanel implements ActionListener, Runnable {
 	public void actionPerformed(ActionEvent e) {
 		repaint();
 
-		
 	}
-
-	
 
 }

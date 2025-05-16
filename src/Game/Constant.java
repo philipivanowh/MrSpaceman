@@ -2,59 +2,54 @@ package Game;
 
 import java.awt.Color;
 
+//Constant class
 public class Constant {
 
-    // Window setting
-    public static int WINDOW_WIDTH = 1480;
-    public static int WINDOW_HEIGHT = 1080;
+    public static class GAME_CONSTANT {
+        // Window size
+        public static int WINDOW_WIDTH = 1480;
+        public static int WINDOW_HEIGHT = 1080;
 
-    public static int GAME_WIDTH = 100000;
-    public static int GAME_HEIGHT = 100000;
+        // Game window size
+        public static int GAME_WIDTH = 100000;
+        public static int GAME_HEIGHT = 100000;
 
-    // Frame rate
+            // Frame rate
     public static final int FPS_SET = 120;
+    public static final float G_Constant = 0;
 
     // Colors
     public static Color SPACE_COLOR = new Color(25, 26, 28);
 
+    }
 
-    //Gravity
-    public static float G_Constant = 0.001f; 
+
+
+    // Gravity
+    public static class PHYSICS_CONSTANT {
+        public static float G_Constant = 0.001f;
+    }
+
+    public static class PLAYER_CONST {
+        public static final float VEL_DECAY = .9f;
+
+        public static final int SHIP_W = 100; // px after scaling
+        public static final int SHIP_H = 100;
+        public static final double SHIP_SPEED = 300.0; // px / s
+        public static final double SIDE_SPEED = 150; // rad / s
+
+        // Rotational dampening PID
+        // how fast you can turn (radians per second)
+        public static final double MAX_TURN_SPEED = Math.toRadians(360);
+
+        // dead-zone value
+        public static final double ANGLE_DEADZONE = Math.toRadians(1); // ~1°
+    }
 
     public enum ThrustType {
         CENTER,
         LEFT,
         RIGHT
     };
-
-    //Object representation of range to assit in readibility
-     static class Range{
-        private int max;
-        private int min;
-
-        public Range(int min,int max){
-            this.max = min;
-            this.min = max;
-        }
-
-        public boolean contatains(int number){
-            return (number >= min && number <= max);
-        }
-
-        //Getter method for range
-        public int getRange(){
-            return Math.abs(max-min);
-        }
-
-        //Getter method for max
-        public int getMax(){
-            return max;
-        }
-
-        //Getter method for min
-        public int getMin(){
-            return min;
-        }
-    }
 
 }

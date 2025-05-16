@@ -1,5 +1,6 @@
 package Game;
 
+import Game.utils.Vector2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;

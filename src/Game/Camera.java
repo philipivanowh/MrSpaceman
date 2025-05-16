@@ -1,5 +1,9 @@
 package Game;
 
+import Game.Constant.GAME_CONSTANT;
+import Game.utils.*;
+
+//Camera class
 public class Camera {
 
     private Vector2D gamePos = new Vector2D();
@@ -13,17 +17,17 @@ public class Camera {
     public void tick(Entity object) {
 
       // target so that the player sits in the center of the window
-    float targetX = object.pos.x - Constant.WINDOW_WIDTH  / 2f;
-    float targetY = object.pos.y - Constant.WINDOW_HEIGHT / 2f;
+    float targetX = object.pos.x - GAME_CONSTANT.WINDOW_WIDTH  / 2f;
+    float targetY = object.pos.y - GAME_CONSTANT.WINDOW_HEIGHT / 2f;
 
     // smooth follow
     gamePos.x += (targetX - gamePos.x) * 0.05f;
     gamePos.y += (targetY - gamePos.y) * 0.05f;
 
     if(gamePos.x <= 0) gamePos.x = 0;
-    if(gamePos.x >= Constant.GAME_WIDTH) gamePos.x = Constant.GAME_WIDTH;
+    if(gamePos.x >= GAME_CONSTANT.GAME_WIDTH) gamePos.x = GAME_CONSTANT.GAME_WIDTH;
     if(gamePos.y <= 0) gamePos.y = 0;
-    if(gamePos.y >= Constant.GAME_HEIGHT) gamePos.y = Constant.GAME_HEIGHT;
+    if(gamePos.y >= GAME_CONSTANT.GAME_HEIGHT) gamePos.y = GAME_CONSTANT.GAME_HEIGHT;
 
 
     }

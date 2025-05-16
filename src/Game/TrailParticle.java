@@ -1,6 +1,6 @@
 package Game;
 
-import Game.Constant.Range;
+import Game.utils.Range;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
@@ -10,20 +10,18 @@ import java.awt.Graphics2D;
  * A smoke-like trail particle that drifts, shrinks, and fades to transparent.
  */
 
-public class TrailParticle {
-    private float x, y;
-    private float vx, vy;
+public class TrailParticle extends Entity{
     private int life;
     private final int maxLife;
     private float radius;
     private float alpha;
 
     private static final float DECAY = 0.9f;
-    private static final float SHRINK = 0.97f;
+    private static final float EXPAND = 1.04f;
 
-    private static final Range CENTER_THRUST_RADIUS_RANGE = new Range(3, 8);
+    private static final Range CENTER_THRUST_RADIUS_RANGE = new Range(5, 8);
 
-    private static final Range SIDE_THRUST_RADIUS_RANGE = new Range(2, 5);
+    private static final Range SIDE_THRUST_RADIUS_RANGE = new Range(4, 7);
 
     private static Range CURRENT_RANGE;
 
@@ -43,6 +41,8 @@ public class TrailParticle {
      * @param shipAngle ship’s current rotation (radians)
      */
     public TrailParticle(float x, float y, double shipAngle, Constant.ThrustType thrustType) {
+
+        super(x, y,0);
 
         float cosA = (float) Math.cos(shipAngle);
         float sinA = (float) Math.sin(shipAngle);
@@ -67,12 +67,12 @@ public class TrailParticle {
                 throw new AssertionError();
         }
 
-        this.x = x + xOffset;
-        this.y = y + yOffset;
+        pos.x = pos.x + xOffset;
+        pos.y = pos.y + yOffset;
 
         this.maxLife = BASE_LIFE + (int) (Math.random() * 15);
         this.life = maxLife;
-        this.radius = CURRENT_RANGE.getMin()
+        this.radius = CURRENT_RANGE.getMax()
                 + (float) (Math.random() * (CURRENT_RANGE.getMax() - CURRENT_RANGE.getMin()));
         this.alpha = 1f;
 
@@ -100,16 +100,16 @@ public class TrailParticle {
                 throw new AssertionError();
         }
 
-        this.vx = (float) (Math.cos(velAngle) * baseSpeed);
-        this.vy = (float) (Math.sin(velAngle) * baseSpeed);
+        vel.x = (float) (Math.cos(velAngle) * baseSpeed);
+        vel.y = (float) (Math.sin(velAngle) * baseSpeed);
     }
 
     public void update() {
-        x += vx;
-        y += vy;
-        vx *= DECAY;
-        vy *= DECAY;
-        radius *= SHRINK;
+        pos.x += vel.x;
+        pos.y += vel.y;
+        vel.x *= DECAY;
+        vel.y *= DECAY;
+        radius *= EXPAND;
         alpha = (float) life / maxLife;
         life--;
     }
@@ -125,7 +125,7 @@ public class TrailParticle {
         Color oldColor = g2.getColor();
         g2.setColor(new Color(200, 200, 200));
         int r = Math.max(1, (int) radius);
-        g2.fillOval((int) (x - r), (int) (y - r), r * 2, r * 2);
+        g2.fillOval((int) (pos.x - r), (int) (pos.y - r), r * 2, r * 2);
 
         g2.setComposite(oldComp);
         g2.setColor(oldColor);
