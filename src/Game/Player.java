@@ -1,8 +1,8 @@
 package Game;
 
-import Game.Constant.GAME_CONSTANT;
 import Game.Constant.PLAYER_CONST;
 import Game.Constant.ThrustType;
+import Game.utils.FrameAnimation;
 import Game.utils.Vector2D;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -10,32 +10,24 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.imageio.ImageIO;
 
 public class Player extends Entity {
 
-    //Plaer Image
-    private final BufferedImage[] frames = new BufferedImage[3];
-
-    private int frameIndex = 0;
-    private double frameTimer = 0; // seconds until next frame
-
-    private Vector2D mouseInput = new Vector2D();
+    final private FrameAnimation currAnimation;
+    final private FrameAnimation idleAnimation;
 
     private List<TrailParticle> particles = new ArrayList<>();
 
-    public Player(float x, float y) {
-        super(x, y,10);
-        loadImages();
+    public Player(double x, double y) {
+        super(x, y, 10);
+
+        idleAnimation = new FrameAnimation(0.1f, false);
+        idleAnimation.loadFrames(new String[] {"Images/rocket.png"});
+
+        currAnimation = idleAnimation;
     }
 
-    //Update the input for the player
-    private void updateInput() {
-        mouseInput = Input.getMouseRelativeToWorld();
-
-    }
-
-    //Update the smoke particles
+    // update the smoke particles
     private void updateParticles() {
         Iterator<TrailParticle> it = particles.iterator();
         while (it.hasNext()) {
@@ -49,82 +41,52 @@ public class Player extends Entity {
 
     public void update(double dt) {
 
-        updateInput();
         updateParticles();
-        // rotation
-        // if (Input.keys[Input.LEFT]) angle -= TURN_SPEED * dt;
-        // if (Input.keys[Input.RIGHT]) angle += TURN_SPEED * dt;
-
+        
         // Compute target rotation
-
-        Vector2D diff = Vector2D.subtract(mouseInput, pos);
+        Vector2D diff = Vector2D.subtract(Input.getMouseRelativeToWorld(), this.pos);
         double targetAngle = diff.getAngle();
 
         // 1) error between where you are and where you want to point
-        double error = clampAngle(targetAngle - angle);
+        double error = clampAngle(targetAngle - this.angle);
 
         // 2) only turn if the error is outside the dead-zone
         if (Math.abs(error) > PLAYER_CONST.ANGLE_DEADZONE) {
             // clamp your turn to MAX_TURN_SPEED * dt
             double maxDelta = PLAYER_CONST.MAX_TURN_SPEED * dt;
             double delta = Math.signum(error) * Math.min(Math.abs(error), maxDelta);
-            angle = (float) clampAngle(angle + delta);
+            this.angle = (double) clampAngle(this.angle + delta);
         }
 
         // main thrust
         if (Input.isThrusting()) {
-            // double radians = Math.toRadians(angle);
-
-            vel.x += Math.cos(angle) * PLAYER_CONST.SHIP_SPEED * dt;
-            vel.y += Math.sin(angle) * PLAYER_CONST.SHIP_SPEED * dt;
+            this.vel.x += Math.cos(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
+            this.vel.y += Math.sin(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
 
             // spawn a new trail particle just below the ship
-            particles.add(new TrailParticle(pos.x, pos.y, angle, ThrustType.CENTER));
+            particles.add(new TrailParticle(this.pos.x, this.pos.y, this.angle, ThrustType.CENTER));
         }
-        //left thrust
+        // left thrust
         if (Input.isLeftThrusting()) {
+            this.vel.x += Math.cos(this.angle - Math.PI / 2) * PLAYER_CONST.SIDE_SPEED * dt;
+            this.vel.y += Math.sin(this.angle - Math.PI / 2) * PLAYER_CONST.SIDE_SPEED * dt;
 
-            vel.x += Math.sin(angle) * PLAYER_CONST.SIDE_SPEED * dt;
-            vel.y += -Math.cos(angle) * PLAYER_CONST.SIDE_SPEED * dt;
-
-            particles.add(new TrailParticle(pos.x, pos.y, angle, ThrustType.LEFT));
+            particles.add(new TrailParticle(this.pos.x, this.pos.y, this.angle, ThrustType.LEFT));
         }
-        //right thrust
+        // right thrust
         if (Input.isRightThrusting()) {
-            vel.x += -Math.sin(angle) * PLAYER_CONST.SIDE_SPEED * dt;
-            vel.y += Math.cos(angle) * PLAYER_CONST.SIDE_SPEED * dt;
+            this.vel.x += Math.cos(this.angle - Math.PI / 2) * PLAYER_CONST.SIDE_SPEED * dt;
+            this.vel.y += Math.sin(this.angle - Math.PI / 2) * PLAYER_CONST.SIDE_SPEED * dt;
 
-            particles.add(new TrailParticle(pos.x, pos.y, angle, ThrustType.RIGHT));
+            particles.add(new TrailParticle(this.pos.x, this.pos.y, this.angle, ThrustType.RIGHT));
         }
 
-        // Damping the velocity
         velocityDecay(dt);
-
-        // integrate position
-        pos.x += vel.x * dt;
-        pos.y += vel.y * dt;
-
-        // Boarder control
-        if (pos.x < 0) {
-            pos.x = 0;
-            vel.x = 0;
-        }
-        if (pos.x > GAME_CONSTANT.GAME_WIDTH - 100) {
-            pos.x = GAME_CONSTANT.GAME_WIDTH - 100;
-            vel.x = 0;
-        }
-        if (pos.y < 0) {
-            pos.y = 0;
-            vel.y = 0;
-        }
-        if (pos.y > GAME_CONSTANT.GAME_HEIGHT - 100) {
-            pos.y = GAME_CONSTANT.GAME_HEIGHT - 100;
-            vel.y = 0;
-        }
-
+        this.pos.x += this.vel.x * dt;
+        this.pos.y += this.vel.y * dt;
     }
 
-    // keep angle within (-π,π]
+    // keep this.angle within (-π,π]
     private double clampAngle(double a) {
         while (a <= -Math.PI)
             a += 2 * Math.PI;
@@ -135,20 +97,20 @@ public class Player extends Entity {
 
     //method to decay the velocity of the ship
     private void velocityDecay(double dt) {
+        if (this.vel.length() > .1) {
+            double factor = (double) Math.pow(PLAYER_CONST.VEL_DECAY, dt);
 
-        if (vel.length() > .1) {
-            float factor = (float) Math.pow(PLAYER_CONST.VEL_DECAY, dt);
-            if (Math.abs(vel.x) > .1)
-                vel.x *= factor;
+            if (Math.abs(this.vel.x) > .1)
+                this.vel.x *= factor;
             else
-                vel.x = 0;
+                this.vel.x = 0;
 
-            if (Math.abs(vel.y) > .1)
-                vel.y *= factor;
+            if (Math.abs(this.vel.y) > .1)
+                this.vel.y *= factor;
             else
-                vel.y = 0;
+                this.vel.y = 0;
         } else {
-            vel = Vector2D.ZERO;
+            this.vel = Vector2D.ZERO;
         }
 
     }
@@ -159,16 +121,12 @@ public class Player extends Entity {
         AffineTransform old = g2.getTransform();
 
         // move to the ship’s center (world coords)
-        g2.translate(pos.x, pos.y);
+        g2.translate(this.pos.x, this.pos.y);
         // then rotate around its own center
-        g2.rotate(angle + Math.PI / 2);
+        g2.rotate(this.angle + Math.PI / 2);
 
-        BufferedImage sprite = frames[frameIndex];
-        g2.drawImage(sprite,
-                -sprite.getWidth() / 2,
-                -sprite.getHeight() / 2,
-                null);
-
+        BufferedImage sprite = currAnimation.getFrame();
+        g2.drawImage(sprite, -sprite.getWidth() / 2, -sprite.getHeight() / 2, null);
         g2.setTransform(old);
 
         renderParticle(g2);
@@ -178,28 +136,5 @@ public class Player extends Entity {
         for (TrailParticle p : particles) {
             p.render(g2);
         }
-    }
-
-    // Load the images from the source
-    private void loadImages() {
-
-        try {
-
-            frames[0] = scale(ImageIO.read(getClass().getResource("/Images/Rocket.png")));
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            System.err.print("Player Images are not properly loaded");
-            System.exit(-1); // fail fast if sprites are missing
-        }
-    }
-
-    // Converting the png to a Buffer Image
-    private static BufferedImage scale(BufferedImage src) {
-        BufferedImage dst = new BufferedImage(PLAYER_CONST.SHIP_W, PLAYER_CONST.SHIP_H, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g2 = dst.createGraphics();
-        g2.drawImage(src, 0, 0, PLAYER_CONST.SHIP_W, PLAYER_CONST.SHIP_H, null);
-        g2.dispose();
-        return dst;
     }
 }

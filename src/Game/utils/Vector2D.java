@@ -1,10 +1,11 @@
 package Game.utils;
+
 /*
 * Implementation of 2D Vector to assit in readibility and calculation within the program
 */
 public class Vector2D {
-    public float x=0;
-    public float y=0;
+    public double x = 0;
+    public double y = 0;
     public final static Vector2D ZERO = new Vector2D();
     public final static Vector2D UP   = new Vector2D(0, 1);
     public final static Vector2D RIGHT = new Vector2D(1, 0);
@@ -16,27 +17,27 @@ public class Vector2D {
     }
 
     // Constructor with arguments sets the components in accordance to the value
-    public Vector2D(float x, float y) {
+    public Vector2D(double x, double y) {
         this.x = x;
         this.y = y;
     }
 
     // Multiply the vector
-    public Vector2D multiply(float factor) {
+    public Vector2D multiply(double factor) {
         x *= factor;
         y *= factor;
         return this;
     }
 
     // Divide the vector
-    public void divide(float factor) {
+    public void divide(double factor) {
         x /= factor;
         y /= factor;
     }
 
     // Calculate the length of the vector
-    public float length() {
-        return (float) Math.sqrt(x * x + y * y);
+    public double length() {
+        return Math.sqrt(x * x + y * y);
     }
 
     // Returns the x and y component of the vector
@@ -52,7 +53,7 @@ public class Vector2D {
 
     // Normalize the vector
     public void normalize() {
-        float len = length();
+        double len = length();
         if (len != 0) {
             x /= len;
             y /= len;
@@ -69,8 +70,8 @@ public class Vector2D {
      */
     public static Vector2D upFromAngle(double angle) {
         return new Vector2D(
-            (float)-Math.sin(angle),
-            (float) Math.cos(angle)
+            (double)-Math.sin(angle),
+            (double) Math.cos(angle)
         );
     }
 
@@ -82,7 +83,7 @@ public class Vector2D {
     }
 
     public static Vector2D normalize(Vector2D a){
-        float len = a.length();
+        double len = a.length();
         if(len == 0)
         return null;
         return new Vector2D(a.x/len, a.y/len);
@@ -98,12 +99,12 @@ public class Vector2D {
         return new Vector2D(a.x + b.x, a.y + b.y);
     }
 
-    public static Vector2D multiply(Vector2D a, float b) {
+    public static Vector2D multiply(Vector2D a, double b) {
 
         return new Vector2D(a.x * b, a.y * b);
     }
 
-    public static Vector2D divide(Vector2D a, float b) {
+    public static Vector2D divide(Vector2D a, double b) {
         if (b == 0)
             return a;
 

@@ -10,14 +10,14 @@ import java.awt.Graphics2D;
  * A smoke-like trail particle that drifts, shrinks, and fades to transparent.
  */
 
-public class TrailParticle extends Entity{
+public class TrailParticle extends Entity {
     private int life;
     private final int maxLife;
-    private float radius;
-    private float alpha;
+    private double radius;
+    private double alpha;
 
-    private static final float DECAY = 0.9f;
-    private static final float EXPAND = 1.04f;
+    private static final double DECAY = 0.9f;
+    private static final double EXPAND = 1.04f;
 
     private static final Range CENTER_THRUST_RADIUS_RANGE = new Range(5, 8);
 
@@ -27,25 +27,25 @@ public class TrailParticle extends Entity{
 
     private static final int BASE_LIFE = 30;
 
-    private final float CENTER_OFFSET = -23f; // how far back from ship center
+    private final double CENTER_OFFSET = -23f; // how far back from ship center
 
-    private final float CENTER_OFFSET_SIDE = -2f;
-    private final float LATERAL_OFFSET = 14; // half the ship’s width to the side
+    private final double CENTER_OFFSET_SIDE = -2f;
+    private final double LATERAL_OFFSET = 14; // half the ship’s width to the side
 
-    private float xOffset;
-    private float yOffset;
+    private double xOffset;
+    private double yOffset;
 
     /**
      * @param x         start x
      * @param y         start y
      * @param shipAngle ship’s current rotation (radians)
      */
-    public TrailParticle(float x, float y, double shipAngle, Constant.ThrustType thrustType) {
+    public TrailParticle(double x, double y, double shipAngle, Constant.ThrustType thrustType) {
 
         super(x, y,0);
 
-        float cosA = (float) Math.cos(shipAngle);
-        float sinA = (float) Math.sin(shipAngle);
+        double cosA = (double) Math.cos(shipAngle);
+        double sinA = (double) Math.sin(shipAngle);
 
         switch (thrustType) {
             case CENTER:
@@ -73,35 +73,35 @@ public class TrailParticle extends Entity{
         this.maxLife = BASE_LIFE + (int) (Math.random() * 15);
         this.life = maxLife;
         this.radius = CURRENT_RANGE.getMax()
-                + (float) (Math.random() * (CURRENT_RANGE.getMax() - CURRENT_RANGE.getMin()));
+                + (double) (Math.random() * (CURRENT_RANGE.getMax() - CURRENT_RANGE.getMin()));
         this.alpha = 1f;
 
-        float spread = (float) ((Math.random() - 0.5) * (Math.PI / 6)); // +/-15°
+        double spread = (double) ((Math.random() - 0.5) * (Math.PI / 6)); // +/-15°
         double velAngle;
-        float baseSpeed;
+        double baseSpeed;
 
         switch (thrustType) {
             case CENTER:
                 // straight backwards
                 velAngle = shipAngle + Math.PI + spread;
-                baseSpeed = 3.0f + (float) (Math.random() * 1.0); // 3.0–4.0 px/frame
+                baseSpeed = 3.0f + (double) (Math.random() * 1.0); // 3.0–4.0 px/frame
                 break;
             case LEFT:
                 // squirting off to the left
                 velAngle = shipAngle + Math.PI / 2 + spread;
-                baseSpeed = 2.0f + (float) (Math.random() * 0.5); // 2.0–2.5 px/frame
+                baseSpeed = 2.0f + (double) (Math.random() * 0.5); // 2.0–2.5 px/frame
                 break;
             case RIGHT:
                 // squirting off to the right
                 velAngle = shipAngle - Math.PI / 2 + spread;
-                baseSpeed = 2.0f + (float) (Math.random() * 0.5); // 2.0–2.5 px/frame
+                baseSpeed = 2.0f + (double) (Math.random() * 0.5); // 2.0–2.5 px/frame
                 break;
             default:
                 throw new AssertionError();
         }
 
-        vel.x = (float) (Math.cos(velAngle) * baseSpeed);
-        vel.y = (float) (Math.sin(velAngle) * baseSpeed);
+        vel.x = (double) (Math.cos(velAngle) * baseSpeed);
+        vel.y = (double) (Math.sin(velAngle) * baseSpeed);
     }
 
     public void update() {
@@ -110,7 +110,7 @@ public class TrailParticle extends Entity{
         vel.x *= DECAY;
         vel.y *= DECAY;
         radius *= EXPAND;
-        alpha = (float) life / maxLife;
+        alpha = (double) life / maxLife;
         life--;
     }
 
@@ -120,7 +120,7 @@ public class TrailParticle extends Entity{
 
     public void render(Graphics2D g2) {
         Composite oldComp = g2.getComposite();
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)alpha));
 
         Color oldColor = g2.getColor();
         g2.setColor(new Color(200, 200, 200));

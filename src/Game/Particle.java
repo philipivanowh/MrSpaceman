@@ -7,12 +7,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 public abstract class Particle {
-    protected float x, y;
-    protected float vx, vy;
+    protected double x, y;
+    protected double vx, vy;
     protected int   life, maxLife;
     protected BufferedImage image;
 
-    public Particle(float x, float y, float vx, float vy, int lifespan, BufferedImage img) {
+    public Particle(double x, double y, double vx, double vy, int lifespan, BufferedImage img) {
         this.x       = x;
         this.y       = y;
         this.vx      = vx;
@@ -31,8 +31,8 @@ public abstract class Particle {
 
     /** draw with fading alpha */
     public void render(Graphics2D g2) {
-        float alpha = life / (float)maxLife;
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+        double alpha = life / (double)maxLife;
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)alpha));
 
         AffineTransform at = AffineTransform.getTranslateInstance(
             x - image.getWidth()/2f,

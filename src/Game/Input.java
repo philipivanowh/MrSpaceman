@@ -9,22 +9,21 @@ import java.awt.event.MouseMotionListener;
 
 public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
-    // Store Keyboard keys state pressed = true, false otherwise
+    // key mask that stores if a key is pressed
     public static boolean[] keys = new boolean[1000];
 
     // Mouse inputs
-    public static Vector2D mouseInput = new Vector2D();
+    public static Vector2D mousePos = new Vector2D();
 
-    private static boolean mouseDown;
+    // mouse button mask that stores if a button is pressed
+    private static boolean[] mouseButtons = new boolean[4];
 
      // a reference to camera
     private static Camera camera;
 
-       /** call this once after you create your camera: */
-    public static void setCamera(Camera cam) {
-        camera = cam;
+    public static void setCamera(Camera camera) {
+        Input.camera = camera;
     }
-
 
     public static boolean isThrusting() {
         return keys[KeyEvent.VK_W] || keys[KeyEvent.VK_UP];
@@ -38,36 +37,29 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
         return keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D];
     }
 
-    public static boolean isMouseClicked(){
-        return mouseDown;
+    public static Vector2D getMouseRelativeToScreen() {
+        return new Vector2D(mousePos.x, mousePos.y);
     }
 
-    public static Vector2D getMouseRelativeToScreen(){
-            return new Vector2D(
-                mouseInput.x,
-                mouseInput.y
-            );
-        
+    public static Vector2D getMouseRelativeToWorld() {
+        return new Vector2D(mousePos.x + camera.getX(), mousePos.y + camera.getY());
     }
 
-    public static Vector2D getMouseRelativeToWorld(){
-            return new Vector2D(
-                mouseInput.x + camera.getX(),
-                mouseInput.y + camera.getY()
-            );
-        
-    }
+    @Override
+    public void keyTyped(KeyEvent e) {}
 
+    @Override
+    public void mouseEntered(MouseEvent e) {}
 
+    @Override
+    public void mouseExited(MouseEvent e) {}
+
+    @Override
+    public void mouseDragged(MouseEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
        keys[e.getKeyCode()] = true;
-    }
-
-    // You can leave keyTyped empty or remove the exception
-    @Override
-    public void keyTyped(KeyEvent e) {
     }
 
     @Override
@@ -76,39 +68,21 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {
-    }
-
-    @Override
     public void mouseMoved(MouseEvent e) {
-        mouseInput = new Vector2D(e.getX(),e.getY());
-
-   
-
-        
+        mousePos = new Vector2D(e.getX(), e.getY());   
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("Mouse clicked!");
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        mouseDown = true;
+        mouseButtons[e.getButton()] = true;
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        mouseDown = false;
+        mouseButtons[e.getButton()] = false;
     }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-    }
-
 }
