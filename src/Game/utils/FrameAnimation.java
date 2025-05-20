@@ -11,7 +11,7 @@ public class FrameAnimation {
     private int index = 0;
     private double timer = 0;
 
-    private ArrayList<BufferedImage> frames;
+    private ArrayList<BufferedImage> frames = new ArrayList<BufferedImage>();
     final private double secondsPerFrame;
     final private boolean singleShot;
 
