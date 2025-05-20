@@ -1,10 +1,8 @@
 package Game;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Random;
-import javax.swing.*;
 import Game.Constant.GAME_CONSTANT;
+import java.awt.*;
+import javax.swing.*;
 
 public class Orbitor extends JPanel implements Runnable {
 	final private Input input;
@@ -12,7 +10,7 @@ public class Orbitor extends JPanel implements Runnable {
 	final private Camera camera;
 
 	Thread gameThread;
-	ArrayList<SolarSystem> celestrialBodies = new ArrayList<SolarSystem>();
+	//ArrayList<SolarSystem> systems = new ArrayList<SolarSystem>();
 
 	private SolarSystem currentSolarSystem;
 
@@ -41,6 +39,8 @@ public class Orbitor extends JPanel implements Runnable {
 
 	private void StartGame() {
 		//GenerateCelestrialBody();
+		SolarSystem solar = new SolarSystem(GAME_CONSTANT.GAME_WIDTH/2 ,GAME_CONSTANT.GAME_HEIGHT/2 );
+		//systems.add(solar);
 		gameThread = new Thread(this);
 		gameThread.start();
 	}
@@ -88,9 +88,11 @@ public class Orbitor extends JPanel implements Runnable {
 		g2.setColor(new Color(255, 255, 255, 64)); // translucent white
 
 		// draw the fixed planet system
-		drawPlanet(g2);
+		//drawSolarSystem(g2);
 
 		player.render(g2);
+
+		
 
 		/* ---------- 2) fixed HUD overlay ---------- */
 		Graphics2D hud = (Graphics2D) g; // uses panel coords (0,0 at top-left)
@@ -114,10 +116,10 @@ public class Orbitor extends JPanel implements Runnable {
 	 * @param radius radius of this planet
 	 * @param depth  how many more levels to recurse
 	 */
-	private void drawPlanet(Graphics2D g2d) {
-		for (SolarSystem body : celestrialBodies) {
-			body.render(g2d);
-		}
+	private void drawSolarSystem(Graphics2D g2d) {
+	//	for (SolarSystem body : systems) {
+	//		body.render(g2d);
+	//	}
 	}
 
 }
