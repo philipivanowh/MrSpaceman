@@ -2,6 +2,8 @@ package Game;
 
 import Game.Constant.GAME_CONSTANT;
 import java.awt.*;
+import java.util.ArrayList;
+
 import javax.swing.*;
 
 public class Orbitor extends JPanel implements Runnable {
@@ -10,13 +12,14 @@ public class Orbitor extends JPanel implements Runnable {
 	final private Camera camera;
 
 	Thread gameThread;
-	//ArrayList<SolarSystem> systems = new ArrayList<SolarSystem>();
+	ArrayList<SolarSystem> systems = new ArrayList<SolarSystem>();
 
 	private SolarSystem currentSolarSystem;
 
 	public Orbitor() {
+
 		player = new Player(GAME_CONSTANT.GAME_WIDTH / 2, GAME_CONSTANT.GAME_HEIGHT / 2);
-		camera = new Camera(0, 0);
+		camera = new Camera(GAME_CONSTANT.GAME_WIDTH / 2, GAME_CONSTANT.GAME_HEIGHT / 2);
 		Input.setCamera(camera);
 
 		setPreferredSize(new Dimension(GAME_CONSTANT.WINDOW_WIDTH, GAME_CONSTANT.WINDOW_HEIGHT));
@@ -40,7 +43,7 @@ public class Orbitor extends JPanel implements Runnable {
 	private void StartGame() {
 		//GenerateCelestrialBody();
 		SolarSystem solar = new SolarSystem(GAME_CONSTANT.GAME_WIDTH/2 ,GAME_CONSTANT.GAME_HEIGHT/2 );
-		//systems.add(solar);
+		systems.add(solar);
 		gameThread = new Thread(this);
 		gameThread.start();
 	}
@@ -71,6 +74,10 @@ public class Orbitor extends JPanel implements Runnable {
 	public void update(double deltaSeconds) {
 		camera.follow(player);
 		player.update(deltaSeconds);
+
+		for(SolarSystem system : systems){
+			system.update();
+		}
 	}
 
 	@Override
@@ -88,7 +95,7 @@ public class Orbitor extends JPanel implements Runnable {
 		g2.setColor(new Color(255, 255, 255, 64)); // translucent white
 
 		// draw the fixed planet system
-		//drawSolarSystem(g2);
+		drawSolarSystem(g2);
 
 		player.render(g2);
 
@@ -106,20 +113,10 @@ public class Orbitor extends JPanel implements Runnable {
 		g2.dispose();
 	}
 
-	/**
-	 * Recursively draws a planet (filled circle) at (x,y) with the given radius.
-	 * Then spawns a few smaller child "planets" around it.
-	 *
-	 * @param g2d    the graphics context
-	 * @param x      center X
-	 * @param y      center Y
-	 * @param radius radius of this planet
-	 * @param depth  how many more levels to recurse
-	 */
 	private void drawSolarSystem(Graphics2D g2d) {
-	//	for (SolarSystem body : systems) {
-	//		body.render(g2d);
-	//	}
+		for (SolarSystem system : systems) {
+			system.render(g2d);
+		}
 	}
 
 }

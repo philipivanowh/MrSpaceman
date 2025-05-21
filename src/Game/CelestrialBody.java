@@ -11,20 +11,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CelestrialBody {
-    public int radius = 0;
+    public double radius = 0;
 
     Vector2D pos = new Vector2D();
     Vector2D vel = new Vector2D();
 
     Vector2D force = new Vector2D();
-    private Color ovalColor;
-    private int pixelSize;
 
     private Color color;
 
     private int glowSize;
-
-    private double G_Constant;
 
     private double mass;
 
@@ -36,7 +32,7 @@ public class CelestrialBody {
 
     public ArrayList<Vector2D> orbits = new ArrayList<>();
 
-    public CelestrialBody(double x, double y, int radius, double mass, boolean sun, Color color,
+    public CelestrialBody(double x, double y, double radius, double mass, boolean sun, Color color,
             CelestrialBody parent) {
         pos.x = x;
         pos.y = y;
@@ -63,9 +59,9 @@ public class CelestrialBody {
         pos.y += vel.y * PHYSICS_CONSTANT.TIMESTEP;
         
         // orbit cord update
-int px = (int)((pos.x-radius/2) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
-int py = (int)((pos.y-radius/2) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
-orbits.add(new Vector2D(px, py));
+        double px = (int)((pos.x) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE) + radius/2;
+        double py = (int)((pos.y) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE) + radius/2;
+        orbits.add(new Vector2D(px, py));
 
 
     }
@@ -88,32 +84,29 @@ orbits.add(new Vector2D(px, py));
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+     if(orbits.size() > 3){
+        //drawOrbit
+            drawOrbit(g2, orbits, 3f);
+        }
+
         // Draw glow effect
         if (sun == true)
             g2.setColor(Color.orange);
         else {
-            g2.setColor(Color.BLACK);
+            g2.setColor(color);
         }
 
         int centerX  = (int) ((pos.x - radius / 2) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
         int centerY = (int) ((pos.y - radius / 2) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
 
-        g2.fillOval(centerX, centerY, (int) radius, radius);
-
-
-        if(orbits.size() > 3){
-        //drawOrbit
-            drawOrbit(g2, orbits, 2f);
-        }
-
+        g2.fillOval(centerX, centerY, (int) radius, (int)radius);
 
     }
 
     //Draw an orbit based on its travelled path
-private void drawOrbit(Graphics2D g2,
-                       List<Vector2D> orbitGameCoords,
-                       float thickness)
+private void drawOrbit(Graphics2D g2, List<Vector2D> orbitGameCoords, float thickness)
 {
+
     // save old stroke
     Stroke oldStroke = g2.getStroke();
     // set new thickness
@@ -130,6 +123,7 @@ private void drawOrbit(Graphics2D g2,
         yPts[i] = (int) p.y;
     }
 
+    g2.setColor(Color.white);
     // draw as an open polyline (won’t force a straight line back to the start)
     g2.drawPolyline(xPts, yPts, n);
 

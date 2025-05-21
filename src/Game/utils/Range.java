@@ -2,30 +2,30 @@ package Game.utils;
 
 //Object representation of range to assit in readibility
 public class Range {
-    private int max;
-    private int min;
+    private double max;
+    private double min;
 
-    public Range(int min, int max) {
+    public Range(double min, double max) {
         this.max = min;
         this.min = max;
     }
 
-    public boolean contatains(int number) {
+    public boolean contatains(double number) {
         return (number >= min && number <= max);
     }
 
     // Getter method for range
-    public int getRange() {
+    public double getRange() {
         return Math.abs(max - min);
     }
 
-    // Getter method for max
-    public int getMax() {
+    // double method for max
+    public double getMax() {
         return max;
     }
 
     // Getter method for min
-    public int getMin() {
+    public double getMin() {
         return min;
     }
 }

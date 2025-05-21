@@ -23,18 +23,16 @@ public class Constant {
 
     }
 
-
-
     // Gravity
     public static class PHYSICS_CONSTANT {
         
     public static final double AU = 149.6e6 * 1000; // Distance from the sun
     public static final double G = 6.67428e-11;
-    public static final double AU_TO_PIXELS_SCALE = 250/AU; // 1AU = 100 pixels
+    public static final double AU_TO_PIXELS_SCALE = 7000/AU; // 1AU = 100 pixels
     
-    public static final double PIXELS_TO_AU_SCALE = AU/250; // 1AU = 100 pixels
+    public static final double PIXELS_TO_AU_SCALE = AU/7000; // 1AU = 100 pixels
 
-    public static final double TIMESTEP = 3600*24; // Simulating how much time is elapsed in the simulation. One day of time
+    public static final double TIMESTEP = 3600/10 ; // Simulating how much time is elapsed in the simulation. One day of time
                                               // step
     }
 
