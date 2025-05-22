@@ -14,26 +14,27 @@ public class Constant {
         public static int GAME_WIDTH = 100000;
         public static int GAME_HEIGHT = 100000;
 
-            // Frame rate
-    public static final int FPS_SET = 60;
-    public static final double G_Constant = 0;
+        // Frame rate
+        public static final int FPS_SET = 60;
+        public static final double G_Constant = 0;
 
-    // Colors
-    public static Color SPACE_COLOR = new Color(25, 26, 28);
+        // Colors
+        public static Color SPACE_COLOR = new Color(25, 26, 28);
 
     }
 
     // Gravity
     public static class PHYSICS_CONSTANT {
-        
-    public static final double AU = 149.6e6 * 1000; // Distance from the sun
-    public static final double G = 6.67428e-11;
-    public static final double AU_TO_PIXELS_SCALE = 7000/AU; // 1AU = 100 pixels
-    
-    public static final double PIXELS_TO_AU_SCALE = AU/7000; // 1AU = 100 pixels
 
-    public static final double TIMESTEP = 3600/10 ; // Simulating how much time is elapsed in the simulation. One day of time
-                                              // step
+        public static final double AU = 149.6e6 * 1000; // Distance from the sun
+        public static final double G = 6.67428e-11;
+        public static final double AU_TO_PIXELS_SCALE = 7000 / AU; // 1AU = 100 pixels
+
+        public static final double PIXELS_TO_AU_SCALE = AU / 7000; // 1AU = 100 pixels
+
+        public static final double TIMESTEP = 3600 / 10; // Simulating how much time is elapsed in the simulation. One
+                                                         // day of time
+        // step
     }
 
     public static class PLAYER_CONST {

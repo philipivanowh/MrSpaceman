@@ -22,7 +22,7 @@ public class Player extends Entity {
         super(x, y, 10);
 
         idleAnimation = new FrameAnimation(0.1f, false);
-        idleAnimation.loadFrames(new String[] {"Images/rocket.png"});
+        idleAnimation.loadFrames(new String[] { "Images/rocket.png" });
 
         currAnimation = idleAnimation;
     }
@@ -42,7 +42,7 @@ public class Player extends Entity {
     public void update(double dt) {
 
         updateParticles();
-        
+
         // Compute target rotation
         Vector2D diff = Vector2D.subtract(Input.getMouseRelativeToWorld(), this.pos);
         double targetAngle = diff.getAngle();
@@ -95,7 +95,7 @@ public class Player extends Entity {
         return a;
     }
 
-    //method to decay the velocity of the ship
+    // method to decay the velocity of the ship
     private void velocityDecay(double dt) {
         if (this.vel.length() > .1) {
             double factor = (double) Math.pow(PLAYER_CONST.VEL_DECAY, dt);

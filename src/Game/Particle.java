@@ -9,35 +9,34 @@ import java.awt.image.BufferedImage;
 public abstract class Particle {
     protected double x, y;
     protected double vx, vy;
-    protected int   life, maxLife;
+    protected int life, maxLife;
     protected BufferedImage image;
 
     public Particle(double x, double y, double vx, double vy, int lifespan, BufferedImage img) {
-        this.x       = x;
-        this.y       = y;
-        this.vx      = vx;
-        this.vy      = vy;
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
         this.maxLife = lifespan;
-        this.life    = lifespan;
-        this.image   = img;
+        this.life = lifespan;
+        this.image = img;
     }
 
     /** move and age */
     public void update() {
-        x   += vx;
-        y   += vy;
+        x += vx;
+        y += vy;
         life = Math.max(0, life - 1);
     }
 
     /** draw with fading alpha */
     public void render(Graphics2D g2) {
-        double alpha = life / (double)maxLife;
-        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float)alpha));
+        double alpha = life / (double) maxLife;
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) alpha));
 
         AffineTransform at = AffineTransform.getTranslateInstance(
-            x - image.getWidth()/2f,
-            y - image.getHeight()/2f
-        );
+                x - image.getWidth() / 2f,
+                y - image.getHeight() / 2f);
         g2.drawImage(image, at, null);
 
         // restore full‐opacity for whatever draws next

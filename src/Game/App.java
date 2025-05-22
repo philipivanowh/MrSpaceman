@@ -1,6 +1,8 @@
 package Game;
+
 import Game.Constant.GAME_CONSTANT;
 import javax.swing.JFrame;
+
 //Executing the game
 public class App {
     public static void main(String[] args) throws Exception {

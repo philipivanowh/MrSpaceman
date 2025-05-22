@@ -41,9 +41,12 @@ public class Orbitor extends JPanel implements Runnable {
 	}
 
 	private void StartGame() {
-		//GenerateCelestrialBody();
-		SolarSystem solar = new SolarSystem(GAME_CONSTANT.GAME_WIDTH/2 ,GAME_CONSTANT.GAME_HEIGHT/2 );
-		SolarSystem solar2 = new SolarSystem(GAME_CONSTANT.GAME_WIDTH/2 + 50000 ,GAME_CONSTANT.GAME_HEIGHT/2 + 50000);
+		// GenerateCelestrialBody();
+		SolarSystem solar = new SolarSystem(GAME_CONSTANT.GAME_WIDTH / 2, GAME_CONSTANT.GAME_HEIGHT / 2);
+		SolarSystem solar2 = new SolarSystem(GAME_CONSTANT.GAME_WIDTH / 2 + 50000,
+				GAME_CONSTANT.GAME_HEIGHT / 2 + 50000);
+		SolarSystem solar3 = new SolarSystem(GAME_CONSTANT.GAME_WIDTH / 2 + 10000,
+				GAME_CONSTANT.GAME_HEIGHT / 2 + 10000);
 		systems.add(solar);
 		systems.add(solar2);
 		gameThread = new Thread(this);
@@ -77,7 +80,7 @@ public class Orbitor extends JPanel implements Runnable {
 		camera.follow(player);
 		player.update(deltaSeconds);
 
-		for(SolarSystem system : systems){
+		for (SolarSystem system : systems) {
 			system.update();
 		}
 	}
@@ -100,8 +103,6 @@ public class Orbitor extends JPanel implements Runnable {
 		drawSolarSystem(g2);
 
 		player.render(g2);
-
-		
 
 		/* ---------- 2) fixed HUD overlay ---------- */
 		Graphics2D hud = (Graphics2D) g; // uses panel coords (0,0 at top-left)

@@ -16,9 +16,9 @@ public class SolarSystem {
 
     private final int EXP_SCALE = (int) (PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE * PHYSICS_CONSTANT.AU / 100);
 
-    private final Range DISTANCE_TO_SUN_RANGE = new Range(0.48, 1.2);
+    private final Range DISTANCE_TO_SUN_RANGE = new Range(0.38, 1.1);
 
-    private final Range CELESTRIAL_BODY_RADIUS_RANGE = new Range(8, 17);
+    private final Range CELESTRIAL_BODY_RADIUS_RANGE = new Range(8, 16);
 
     private final Range AMOUNT_OF_ORBIT_RANGE = new Range(3, 5);
 
@@ -31,8 +31,7 @@ public class SolarSystem {
                 sunRadius * EXP_SCALE, sunMass, true, null, root);
         bodies.add(root);
 
-
-     //   generateDefaultSolarSystem(root);
+        // generateDefaultSolarSystem(root);
         generateSolarSystem(root);
     }
 
@@ -46,7 +45,6 @@ public class SolarSystem {
     // Generate the model of our solar system
     private void generateDefaultSolarSystem(CelestrialBody parent) {
 
-        
         Random rand = new Random();
         // Will produce only bright / light colours:
         double r = rand.nextFloat() / 2f + 0.5;
@@ -54,11 +52,8 @@ public class SolarSystem {
         double b = rand.nextFloat() / 2f + 0.5;
         Color newColor = new Color((float) r, (float) g, (float) b);
 
-        System.out.println(EXP_SCALE);
         bodies.add(new CelestrialBody((-1.2 * PHYSICS_CONSTANT.AU) + root.pos.x, root.pos.y, 16 * EXP_SCALE, 5.9742e24,
                 false, newColor, parent));
-        
-        System.out.println(bodies.get(1).pos.x*PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + " " + bodies.get(0).pos.y*PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
 
         r = rand.nextFloat() / 2f + 0.5;
         g = rand.nextFloat() / 2f + 0.5;
@@ -90,9 +85,9 @@ public class SolarSystem {
         Random colorRand = new Random();
 
         int numberOfOrbit = (int) generateRandomWithSteps(
-            AMOUNT_OF_ORBIT_RANGE.getMin(),
-            AMOUNT_OF_ORBIT_RANGE.getMax(),
-             1);
+                AMOUNT_OF_ORBIT_RANGE.getMin(),
+                AMOUNT_OF_ORBIT_RANGE.getMax(),
+                1);
 
         System.out.println(numberOfOrbit);
 
@@ -105,41 +100,40 @@ public class SolarSystem {
             double newDistanceToSun = generateRandomWithSteps(DISTANCE_TO_SUN_RANGE.getMin(),
                     DISTANCE_TO_SUN_RANGE.getMax(), .1);
 
-           
-
-          //  double newMass = (4.0 / 3.0) * Math.PI * newRadius * newRadius * newRadius * EXP_SCALE;
-            double newMass = 5.9742e24;
+            // double newMass = (4.0 / 3.0) * Math.PI * newRadius * newRadius * newRadius *
+            // EXP_SCALE;
+            double newMass = 6.9742e25;
             // Will produce only bright / light colours:
             double r = colorRand.nextFloat() / 2f + 0.5;
             double g = colorRand.nextFloat() / 2f + 0.5;
             double b = colorRand.nextFloat() / 2f + 0.5;
             Color newColor = new Color((float) r, (float) g, (float) b);
 
-             //This creates the spacing between the orbit require to compensate for the size of the planet
-             //This offset is necessary to prevent two planets spawning close to one another
-            double xPlanetOffset = 2*(newRadius+previousBodyRadius) * EXP_SCALE * PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE;
+            // This creates the spacing between the orbit require to compensate for the size
+            // of the planet
+            // This offset is necessary to prevent two planets spawning close to one another
+            double xPlanetOffset = 2 * (newRadius + previousBodyRadius) * EXP_SCALE
+                    * PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE;
 
-            double xCord = ((PHYSICS_CONSTANT.AU * newDistanceToSun) + root.pos.x) +xPlanetOffset;
+            double xCord = ((PHYSICS_CONSTANT.AU * newDistanceToSun) + root.pos.x) + xPlanetOffset;
 
             bodies.add(new CelestrialBody(xCord, root.pos.y,
                     newRadius * EXP_SCALE, newMass, false, newColor, parent));
-            
+
             sortBodiesInOrderByDistanceToSun(bodies);
 
-            previousBodyRadius = bodies.get(i).radius/EXP_SCALE;
-
-
+            previousBodyRadius = bodies.get(i).radius / EXP_SCALE;
 
         }
 
-         System.out.println(bodies);
+        System.out.println(bodies);
 
     }
 
-    //Peforms a Selection Sort based on its distance from the sun
-    public static void sortBodiesInOrderByDistanceToSun(ArrayList<CelestrialBody> bodies){
+    // Peforms a Selection Sort based on its distance from the sun
+    public static void sortBodiesInOrderByDistanceToSun(ArrayList<CelestrialBody> bodies) {
 
-     int n = bodies.size();
+        int n = bodies.size();
         for (int i = 0; i < n - 1; i++) {
             // Assume the i-th position has the smallest x
             int minIndex = i;
