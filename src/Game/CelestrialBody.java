@@ -181,6 +181,6 @@ private void drawOrbit(Graphics2D g2, List<Vector2D> orbitGameCoords, float thic
 
     @Override
     public String toString() {
-        return "Pos: " + pos.toString() + " Radius:" + radius + " Mass:" + mass;
+        return "Pos: " + "[" + pos.x* PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + " "+","+" "+pos.y*PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + "]" + " Radius:" + radius + " Mass:" + mass;
     }
 }
