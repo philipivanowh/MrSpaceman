@@ -1,5 +1,6 @@
 package Game;
 
+import Game.Constant.CELESTRIAL_BODY_TYPE;
 import Game.Constant.PHYSICS_CONSTANT;
 import Game.utils.Range;
 import java.awt.Color;
@@ -13,6 +14,13 @@ public class SolarSystem {
     private ArrayList<CelestrialBody> bodies = new ArrayList<>();
 
     private CelestrialBody root;
+<<<<<<< Updated upstream
+=======
+
+    public static double TIMESTEP = PHYSICS_CONSTANT.TIMESTEP_FAST;
+
+    public long delayTimeUntilTimeStepChange = 5000;    //5 second before its timestep will change its speed to default
+>>>>>>> Stashed changes
 
     private final int EXP_SCALE = (int) (PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE * PHYSICS_CONSTANT.AU / 100);
 
@@ -28,7 +36,11 @@ public class SolarSystem {
         int sunRadius = 30;
         double sunMass = 1.98892e30;
         root = new CelestrialBody(x * PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE, y * PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE,
+<<<<<<< Updated upstream
                 sunRadius * EXP_SCALE, sunMass, true, null, root);
+=======
+                sunRadius * EXP_SCALE, sunMass, Constant.CELESTRIAL_BODY_TYPE.SUN, Color.ORANGE, root,this);
+>>>>>>> Stashed changes
         bodies.add(root);
 
         // generateDefaultSolarSystem(root);
@@ -52,6 +64,7 @@ public class SolarSystem {
         double b = rand.nextFloat() / 2f + 0.5;
         Color newColor = new Color((float) r, (float) g, (float) b);
 
+<<<<<<< Updated upstream
         bodies.add(new CelestrialBody((-1.2 * PHYSICS_CONSTANT.AU) + root.pos.x, root.pos.y, 16 * EXP_SCALE, 5.9742e24,
                 false, newColor, parent));
 
@@ -77,6 +90,27 @@ public class SolarSystem {
         bodies.add(new CelestrialBody((-0.823 * PHYSICS_CONSTANT.AU) + root.pos.x, root.pos.y, 14 * EXP_SCALE,
                 4.8685e24, false, newColor, parent));
 
+=======
+        // Generate Mercury celestrial body
+        newColor = Color.DARK_GRAY;
+        bodies.add(new CelestrialBody((PHYSICS_CONSTANT.MERCURY_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
+                8 * EXP_SCALE, 3.30e23, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
+
+        // Generate Venus celestrial body
+        newColor = Color.WHITE;
+        bodies.add(new CelestrialBody((PHYSICS_CONSTANT.VENUS_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
+                14 * EXP_SCALE, 4.8685e24, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
+
+        // Generate Earth celestrial body
+        newColor = Color.BLUE;
+        bodies.add(new CelestrialBody((PHYSICS_CONSTANT.EARTH_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
+                16 * EXP_SCALE, 5.9742e24, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
+
+        // Generate Mars celestrial body
+        newColor = Color.RED;
+        bodies.add(new CelestrialBody((PHYSICS_CONSTANT.MARS_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
+                12 * EXP_SCALE, 6.39e23, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
+>>>>>>> Stashed changes
     }
 
     // Generate random solar system
@@ -109,11 +143,16 @@ public class SolarSystem {
             double b = colorRand.nextFloat() / 2f + 0.5;
             Color newColor = new Color((float) r, (float) g, (float) b);
 
+<<<<<<< Updated upstream
             // This creates the spacing between the orbit require to compensate for the size
             // of the planet
             // This offset is necessary to prevent two planets spawning close to one another
             double xPlanetOffset = 2 * (newRadius + previousBodyRadius) * EXP_SCALE
                     * PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE;
+=======
+            bodies.add(new CelestrialBody((PHYSICS_CONSTANT.AU * newDistanceToSun) + root.pos.x, root.pos.y,
+                    newRadius * EXP_SCALE, newMass, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
+>>>>>>> Stashed changes
 
             double xCord = ((PHYSICS_CONSTANT.AU * newDistanceToSun) + root.pos.x) + xPlanetOffset;
 
@@ -177,6 +216,13 @@ public class SolarSystem {
             body.render(g2);
         }
 
+    }
+
+    public ArrayList<CelestrialBody> getCelestrialBodies() {
+        return bodies;
+    }
+    public CelestrialBody getRoot() {
+        return root;
     }
 
 }

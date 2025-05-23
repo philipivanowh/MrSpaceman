@@ -1,5 +1,6 @@
 package Game;
 
+import Game.Constant.CELESTRIAL_BODY_TYPE;
 import Game.Constant.PHYSICS_CONSTANT;
 import Game.utils.Vector2D;
 import java.awt.BasicStroke;
@@ -13,11 +14,14 @@ import java.util.List;
 public class CelestrialBody {
     public double radius = 0;
 
+<<<<<<< Updated upstream
     Vector2D pos = new Vector2D();
     Vector2D vel = new Vector2D();
 
     Vector2D force = new Vector2D();
 
+=======
+>>>>>>> Stashed changes
     private Color color;
 
     private int glowSize;
@@ -26,22 +30,28 @@ public class CelestrialBody {
 
     public double distance_to_sun;
     // Is the celetrial body a sun
-    public boolean sun;
+    public CELESTRIAL_BODY_TYPE bodyType;
 
     public CelestrialBody parent;
 
     public ArrayList<Vector2D> orbits = new ArrayList<>();
 
+<<<<<<< Updated upstream
     public CelestrialBody(double x, double y, double radius, double mass, boolean sun, Color color,
             CelestrialBody parent) {
         pos.x = x;
         pos.y = y;
+=======
+    public CelestrialBody(double x, double y, double radius, double mass, CELESTRIAL_BODY_TYPE bodyType, Color color,
+            CelestrialBody parent, SolarSystem system) {
+        super(x,y,radius,radius,mass);
+>>>>>>> Stashed changes
         this.radius = radius;
-        this.sun = sun;
+        this.bodyType = bodyType;
         glowSize = (int) (radius * 0.2);
         this.color = color;
         this.mass = mass;
-        if (!sun) {
+        if (bodyType == CELESTRIAL_BODY_TYPE.PLANET) {
             vel.y = optimalOrbitalVelocity(parent).length();
         }
 
@@ -72,7 +82,7 @@ public class CelestrialBody {
         for (CelestrialBody planet : planets) {
             if (planet == this)
                 continue;
-            Vector2D f = attraction(planet);
+            Vector2D f = attraction(planet,pos);
             force.x += f.x;
             force.y += f.y;
         }
@@ -89,8 +99,9 @@ public class CelestrialBody {
         }
 
         // Draw glow effect
-        if (sun == true)
+        if (bodyType == CELESTRIAL_BODY_TYPE.SUN) {
             g2.setColor(Color.orange);
+        }
         else {
             g2.setColor(color);
         }
@@ -129,6 +140,7 @@ public class CelestrialBody {
         g2.setStroke(oldStroke);
     }
 
+<<<<<<< Updated upstream
     public Vector2D attraction(CelestrialBody body) {
         Vector2D delta = Vector2D.subtract(body.pos, this.pos);
 
@@ -145,6 +157,8 @@ public class CelestrialBody {
         newForce.multiply(magnitude);
         return newForce;
     }
+=======
+>>>>>>> Stashed changes
 
     /**
      * @param centralBody the body you want to orbit (e.g. the Sun)

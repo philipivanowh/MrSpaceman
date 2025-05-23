@@ -18,8 +18,15 @@ public class Player extends Entity {
 
     private List<TrailParticle> particles = new ArrayList<>();
 
+<<<<<<< Updated upstream
     public Player(double x, double y) {
         super(x, y, 10);
+=======
+    private double GravityStrengthModifier = 8;
+
+    public Player(double x, double y) {
+        super(x, y,  PLAYER_CONST.SHIP_W, PLAYER_CONST.SHIP_H,1e10);
+>>>>>>> Stashed changes
 
         idleAnimation = new FrameAnimation(0.1f, false);
         idleAnimation.loadFrames(new String[] { "Images/rocket.png" });
@@ -39,6 +46,34 @@ public class Player extends Entity {
         }
     }
 
+<<<<<<< Updated upstream
+=======
+    private void updateGravity(){
+        updateNetGravitationalForce(Orbitor.currentSolarSystem.getCelestrialBodies());
+
+        vel.x += force.x/mass;
+        vel.y += force.y/mass;
+    }
+
+    public void updateNetGravitationalForce(List<CelestrialBody> other) {
+        force.x = 0;
+        force.y = 0;
+
+        for (CelestrialBody body : other) {
+                Vector2D gForce = attraction(body, Vector2D.multiply(pos, PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE));
+                if(body.bodyType == Constant.CELESTRIAL_BODY_TYPE.SUN) {
+                    gForce.multiply(GravityStrengthModifier);
+                }else if(body.bodyType == Constant.CELESTRIAL_BODY_TYPE.PLANET) {
+                    gForce.multiply(GravityStrengthModifier * 1e11);
+
+                }
+                force.x += gForce.x;
+                force.y += gForce.y;
+            
+        }
+    }
+
+>>>>>>> Stashed changes
     public void update(double dt) {
 
         updateParticles();

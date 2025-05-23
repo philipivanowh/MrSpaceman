@@ -41,6 +41,7 @@ public class Orbitor extends JPanel implements Runnable {
 	}
 
 	private void StartGame() {
+<<<<<<< Updated upstream
 		// GenerateCelestrialBody();
 		SolarSystem solar = new SolarSystem(GAME_CONSTANT.GAME_WIDTH / 2, GAME_CONSTANT.GAME_HEIGHT / 2);
 		SolarSystem solar2 = new SolarSystem(GAME_CONSTANT.GAME_WIDTH / 2 + 50000,
@@ -49,6 +50,9 @@ public class Orbitor extends JPanel implements Runnable {
 				GAME_CONSTANT.GAME_HEIGHT / 2 + 10000);
 		systems.add(solar);
 		systems.add(solar2);
+=======
+		loadSolarSystem();
+>>>>>>> Stashed changes
 		gameThread = new Thread(this);
 		gameThread.start();
 	}

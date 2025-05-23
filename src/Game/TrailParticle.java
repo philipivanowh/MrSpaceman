@@ -1,5 +1,6 @@
 package Game;
 
+import Game.Constant.ThrustType;
 import Game.utils.Range;
 import java.awt.AlphaComposite;
 import java.awt.Color;
@@ -40,25 +41,25 @@ public class TrailParticle extends Entity {
      * @param y         start y
      * @param shipAngle ship’s current rotation (radians)
      */
-    public TrailParticle(double x, double y, double shipAngle, Constant.ThrustType thrustType) {
+    public TrailParticle(double x, double y, double shipAngle, ThrustType thrustType) {
 
-        super(x, y,0);
+        super(x, y,1,1,0);
 
         double cosA = (double) Math.cos(shipAngle);
         double sinA = (double) Math.sin(shipAngle);
 
         switch (thrustType) {
-            case CENTER:
+            case ThrustType.CENTER:
                 xOffset = cosA * CENTER_OFFSET;
                 yOffset = sinA * CENTER_OFFSET;
                 CURRENT_RANGE = CENTER_THRUST_RADIUS_RANGE;
                 break;
-            case LEFT:
+            case ThrustType.LEFT:
                 xOffset = cosA * CENTER_OFFSET_SIDE + (-sinA) * LATERAL_OFFSET;
                 yOffset = sinA * CENTER_OFFSET_SIDE + (cosA) * LATERAL_OFFSET;
                 CURRENT_RANGE = SIDE_THRUST_RADIUS_RANGE;
                 break;
-            case RIGHT:
+            case ThrustType.RIGHT:
                 xOffset = cosA * CENTER_OFFSET_SIDE + (sinA) * LATERAL_OFFSET;
                 yOffset = sinA * CENTER_OFFSET_SIDE + (-cosA) * LATERAL_OFFSET;
                 CURRENT_RANGE = SIDE_THRUST_RADIUS_RANGE;
@@ -81,17 +82,17 @@ public class TrailParticle extends Entity {
         double baseSpeed;
 
         switch (thrustType) {
-            case CENTER:
+            case ThrustType.CENTER:
                 // straight backwards
                 velAngle = shipAngle + Math.PI + spread;
                 baseSpeed = 3.0f + (double) (Math.random() * 1.0); // 3.0–4.0 px/frame
                 break;
-            case LEFT:
+            case ThrustType.LEFT:
                 // squirting off to the left
                 velAngle = shipAngle + Math.PI / 2 + spread;
                 baseSpeed = 2.0f + (double) (Math.random() * 0.5); // 2.0–2.5 px/frame
                 break;
-            case RIGHT:
+            case ThrustType.RIGHT:
                 // squirting off to the right
                 velAngle = shipAngle - Math.PI / 2 + spread;
                 baseSpeed = 2.0f + (double) (Math.random() * 0.5); // 2.0–2.5 px/frame
