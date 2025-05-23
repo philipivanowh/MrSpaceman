@@ -10,19 +10,12 @@ import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CelestrialBody {
+public class CelestrialBody extends Entity{
     public double radius = 0;
-
-    Vector2D pos = new Vector2D();
-    Vector2D vel = new Vector2D();
-
-    Vector2D force = new Vector2D();
 
     private Color color;
 
     private int glowSize;
-
-    private double mass;
 
     public double distance_to_sun;
     // Is the celetrial body a sun
@@ -30,39 +23,39 @@ public class CelestrialBody {
 
     public CelestrialBody parent;
 
+    public SolarSystem system;
+
     public ArrayList<Vector2D> orbits = new ArrayList<>();
 
     public CelestrialBody(double x, double y, double radius, double mass, boolean sun, Color color,
-            CelestrialBody parent) {
-        pos.x = x;
-        pos.y = y;
+            CelestrialBody parent, SolarSystem system) {
+       super(x,y,mass);
         this.radius = radius;
         this.sun = sun;
         glowSize = (int) (radius * 0.2);
         this.color = color;
-        this.mass = mass;
         if (!sun) {
             vel.y = optimalOrbitalVelocity(parent).length();
         }
 
         this.parent = parent;
+        this.system = system;
 
     }
 
     public void update(ArrayList<CelestrialBody> other) {
 
         updateNetGravitationalForce(other);
-        vel.x += force.x / mass * PHYSICS_CONSTANT.TIMESTEP;
-        vel.y += force.y / mass * PHYSICS_CONSTANT.TIMESTEP;
+        vel.x += force.x / mass * system.TIMESTEP;
+        vel.y += force.y / mass * system.TIMESTEP;
 
-        pos.x += vel.x * PHYSICS_CONSTANT.TIMESTEP;
-        pos.y += vel.y * PHYSICS_CONSTANT.TIMESTEP;
-        
+        pos.x += vel.x * system.TIMESTEP;
+        pos.y += vel.y * system.TIMESTEP;
+
         // orbit cord update
-        double px = (int)((pos.x) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE) + radius/2;
-        double py = (int)((pos.y) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE) + radius/2;
+        double px = (int) ((pos.x) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+        double py = (int) ((pos.y) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
         orbits.add(new Vector2D(px, py));
-
 
     }
 
@@ -84,8 +77,8 @@ public class CelestrialBody {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-     if(orbits.size() > 3){
-        //drawOrbit
+        if (orbits.size() > 3) {
+            // drawOrbit
             drawOrbit(g2, orbits, 3f);
         }
 
@@ -96,59 +89,38 @@ public class CelestrialBody {
             g2.setColor(color);
         }
 
-        int centerX  = (int) ((pos.x - radius / 2) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
-        int centerY = (int) ((pos.y - radius / 2) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+        int centerX = (int) (pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE - radius / 2);
+        int centerY = (int) (pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE - radius / 2);
 
-        g2.fillOval(centerX, centerY, (int) radius, (int)radius);
+        g2.fillOval(centerX, centerY, (int) radius, (int) radius);
 
     }
 
-    //Draw an orbit based on its travelled path
-private void drawOrbit(Graphics2D g2, List<Vector2D> orbitGameCoords, float thickness)
-{
+    // Draw an orbit based on its travelled path
+    private void drawOrbit(Graphics2D g2, List<Vector2D> orbitGameCoords, float thickness) {
 
-    // save old stroke
-    Stroke oldStroke = g2.getStroke();
-    // set new thickness
-    g2.setStroke(new BasicStroke(thickness));
+        // save old stroke
+        Stroke oldStroke = g2.getStroke();
+        // set new thickness
+        g2.setStroke(new BasicStroke(thickness));
 
-    int n = orbitGameCoords.size();
-    int[] xPts = new int[n];
-    int[] yPts = new int[n];
+        int n = orbitGameCoords.size();
+        int[] xPts = new int[n];
+        int[] yPts = new int[n];
 
-    // build the polygon points, offset by the center
-    for (int i = 0; i < n; i++) {
-        Vector2D p = orbitGameCoords.get(i);
-        xPts[i] = (int) p.x;
-        yPts[i] = (int) p.y;
-    }
-
-    g2.setColor(Color.white);
-    // draw as an open polyline (won’t force a straight line back to the start)
-    g2.drawPolyline(xPts, yPts, n);
-
-    // restore original stroke
-    g2.setStroke(oldStroke);
-}
-
-    public Vector2D attraction(CelestrialBody body) {
-        Vector2D delta = Vector2D.subtract(body.pos, this.pos);
-
-        double distSq = delta.x * delta.x + delta.y * delta.y;
-        if (distSq == 0) {
-            // overlapping bodies? no gravity
-            return new Vector2D(0, 0);
+        // build the polygon points, offset by the center
+        for (int i = 0; i < n; i++) {
+            Vector2D p = orbitGameCoords.get(i);
+            xPts[i] = (int) p.x;
+            yPts[i] = (int) p.y;
         }
 
-        // F = G*m1*m2 / (r^2)
-        double magnitude = PHYSICS_CONSTANT.G * body.mass * this.mass / distSq;
+        g2.setColor(Color.white);
+        // draw as an open polyline (won’t force a straight line back to the start)
+        g2.drawPolyline(xPts, yPts, n);
 
-        double theta = delta.getAngle();
-        Vector2D newForce = new Vector2D();
-        newForce.x = (Math.cos(theta) * magnitude);
-        newForce.y = (Math.sin(theta) * magnitude);
-
-        return newForce;
+        // restore original stroke
+        g2.setStroke(oldStroke);
     }
 
     /**
@@ -181,6 +153,7 @@ private void drawOrbit(Graphics2D g2, List<Vector2D> orbitGameCoords, float thic
 
     @Override
     public String toString() {
-        return "Pos: " + pos.toString() + " Radius:" + radius + " Mass:" + mass;
+        return "Pos: [" + pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + ","
+                + pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + "]" + " Radius:" + radius + " Mass:" + mass;
     }
 }

@@ -1,6 +1,8 @@
 package Game;
 
 import Game.Constant.GAME_CONSTANT;
+import Game.Constant.PHYSICS_CONSTANT;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -14,11 +16,11 @@ public class Orbitor extends JPanel implements Runnable {
 	Thread gameThread;
 	ArrayList<SolarSystem> systems = new ArrayList<SolarSystem>();
 
-	private SolarSystem currentSolarSystem;
+	public static SolarSystem currentSolarSystem;
 
 	public Orbitor() {
 
-		player = new Player(GAME_CONSTANT.GAME_WIDTH / 2, GAME_CONSTANT.GAME_HEIGHT / 2);
+		player = new Player((GAME_CONSTANT.GAME_WIDTH / 2)-1000, (GAME_CONSTANT.GAME_HEIGHT / 2) -1000);
 		camera = new Camera(GAME_CONSTANT.GAME_WIDTH / 2, GAME_CONSTANT.GAME_HEIGHT / 2);
 		Input.setCamera(camera);
 
@@ -42,10 +44,15 @@ public class Orbitor extends JPanel implements Runnable {
 
 	private void StartGame() {
 		//GenerateCelestrialBody();
-		SolarSystem solar = new SolarSystem(GAME_CONSTANT.GAME_WIDTH/2 ,GAME_CONSTANT.GAME_HEIGHT/2 );
-		systems.add(solar);
+		loadSolarSystem();
 		gameThread = new Thread(this);
 		gameThread.start();
+	}
+
+	private void loadSolarSystem(){
+		SolarSystem solar = new SolarSystem(GAME_CONSTANT.GAME_WIDTH/2 ,GAME_CONSTANT.GAME_HEIGHT/2 );
+		systems.add(solar);
+		currentSolarSystem = solar;
 	}
 
 	@Override
@@ -117,6 +124,11 @@ public class Orbitor extends JPanel implements Runnable {
 		for (SolarSystem system : systems) {
 			system.render(g2d);
 		}
+	}
+
+	//Getter method to retrieve the currentSolarSystem;
+	private SolarSystem getCurrentSolarSystem(){
+		return currentSolarSystem;
 	}
 
 }

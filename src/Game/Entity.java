@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 public abstract class Entity {
     protected Vector2D pos = new Vector2D();
     protected Vector2D vel = new Vector2D();
+    protected Vector2D force = new Vector2D();
 
     protected double angle;
     protected double mass;
@@ -33,8 +34,9 @@ public abstract class Entity {
         // F = G*m1*m2 / (r^2)
         double magnitude = PHYSICS_CONSTANT.G * body.mass * this.mass / distSq;
 
+        Vector2D newForce = Vector2D.normalize(delta);
+
         double theta = delta.getAngle();
-        Vector2D newForce = new Vector2D();
         newForce.x = (Math.cos(theta) * magnitude);
         newForce.y = (Math.sin(theta) * magnitude);
 

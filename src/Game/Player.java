@@ -19,7 +19,7 @@ public class Player extends Entity {
     private List<TrailParticle> particles = new ArrayList<>();
 
     public Player(double x, double y) {
-        super(x, y, 10);
+        super(x, y, 1);
 
         idleAnimation = new FrameAnimation(0.1f, false);
         idleAnimation.loadFrames(new String[] {"Images/rocket.png"});
@@ -39,9 +39,24 @@ public class Player extends Entity {
         }
     }
 
+    private void updateGravity(){
+        force.x = 0;
+        force.y = 0;
+
+        Vector2D gForce = attraction(Orbitor.currentSolarSystem.root);
+    
+        force.x += gForce.x;
+        force.y += gForce.y;
+        System.out.println("gFoce" + gForce);
+
+        vel.x += force.x/mass;
+        vel.y += force.y/mass;
+    }
+
     public void update(double dt) {
 
         updateParticles();
+        updateGravity();
         
         // Compute target rotation
         Vector2D diff = Vector2D.subtract(Input.getMouseRelativeToWorld(), this.pos);
