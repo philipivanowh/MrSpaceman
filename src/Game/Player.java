@@ -1,5 +1,6 @@
 package Game;
 
+import Game.Constant.PHYSICS_CONSTANT;
 import Game.Constant.PLAYER_CONST;
 import Game.Constant.ThrustType;
 import Game.utils.FrameAnimation;
@@ -18,8 +19,10 @@ public class Player extends Entity {
 
     private List<TrailParticle> particles = new ArrayList<>();
 
+    private double GravityStrengthAdjuster = 5;
+
     public Player(double x, double y) {
-        super(x, y, 1);
+        super(x, y, 1000000);
 
         idleAnimation = new FrameAnimation(0.1f, false);
         idleAnimation.loadFrames(new String[] {"Images/rocket.png"});
@@ -43,11 +46,9 @@ public class Player extends Entity {
         force.x = 0;
         force.y = 0;
 
-        Vector2D gForce = attraction(Orbitor.currentSolarSystem.root);
-    
-        force.x += gForce.x;
-        force.y += gForce.y;
-        System.out.println("gFoce" + gForce);
+      Vector2D gForce = attraction(Orbitor.currentSolarSystem.root,Vector2D.multiply(pos,PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE));
+        force.x += gForce.x * GravityStrengthAdjuster;
+        force.y += gForce.y * GravityStrengthAdjuster;
 
         vel.x += force.x/mass;
         vel.y += force.y/mass;

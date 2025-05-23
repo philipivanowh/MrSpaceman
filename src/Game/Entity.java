@@ -22,24 +22,29 @@ public abstract class Entity {
     public abstract void render(Graphics2D g2);
 
     // calculates the gravitational force between objects
-    public Vector2D attraction(Entity body) {
-        Vector2D delta = Vector2D.subtract(body.pos, this.pos);
+ public Vector2D attraction(CelestrialBody body,Vector2D subject) {
+        Vector2D delta = Vector2D.subtract(body.pos, subject);
 
-        double distSq = delta.x * delta.x + delta.y * delta.y;
+         double distSq = delta.x * delta.x + delta.y * delta.y;
         if (distSq == 0) {
             // overlapping bodies? no gravity
             return new Vector2D(0, 0);
         }
 
         // F = G*m1*m2 / (r^2)
-        double magnitude = PHYSICS_CONSTANT.G * body.mass * this.mass / distSq;
-
-        Vector2D newForce = Vector2D.normalize(delta);
+        double magnitude = PHYSICS_CONSTANT.G * body.getMass() * this.mass / distSq;
 
         double theta = delta.getAngle();
+        Vector2D newForce = new Vector2D();
         newForce.x = (Math.cos(theta) * magnitude);
         newForce.y = (Math.sin(theta) * magnitude);
 
         return newForce;
+        
+    }
+
+    //Getter method to retrieve the mass of the entity
+    public double getMass(){
+        return mass;
     }
 }

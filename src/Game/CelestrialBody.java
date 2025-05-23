@@ -13,9 +13,13 @@ import java.util.List;
 public class CelestrialBody extends Entity{
     public double radius = 0;
 
+    Vector2D force = new Vector2D();
+
     private Color color;
 
     private int glowSize;
+
+    private double mass;
 
     public double distance_to_sun;
     // Is the celetrial body a sun
@@ -34,6 +38,7 @@ public class CelestrialBody extends Entity{
         this.sun = sun;
         glowSize = (int) (radius * 0.2);
         this.color = color;
+        this.mass = mass;
         if (!sun) {
             vel.y = optimalOrbitalVelocity(parent).length();
         }
@@ -121,6 +126,26 @@ public class CelestrialBody extends Entity{
 
         // restore original stroke
         g2.setStroke(oldStroke);
+    }
+
+    public Vector2D attraction(CelestrialBody body) {
+        Vector2D delta = Vector2D.subtract(body.pos, this.pos);
+
+        double distSq = delta.x * delta.x + delta.y * delta.y;
+        if (distSq == 0) {
+            // overlapping bodies? no gravity
+            return new Vector2D(0, 0);
+        }
+
+        // F = G*m1*m2 / (r^2)
+        double magnitude = PHYSICS_CONSTANT.G * body.mass * this.mass / distSq;
+
+        double theta = delta.getAngle();
+        Vector2D newForce = new Vector2D();
+        newForce.x = (Math.cos(theta) * magnitude);
+        newForce.y = (Math.sin(theta) * magnitude);
+
+        return newForce;
     }
 
     /**

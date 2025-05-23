@@ -14,7 +14,7 @@ public class SolarSystem {
 
     public static double TIMESTEP = PHYSICS_CONSTANT.TIMESTEP_FAST;
 
-    public long delayTimeUntilTimeStepChange = 5000; // 5 second before its timestep will change its speed to default
+    public long delayTimeUntilTimeStepChange = 5000;    //5 second before its timestep will change its speed to default
 
     private final int EXP_SCALE = (int) (PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE * PHYSICS_CONSTANT.AU / 100);
     private final int MASS_SCALE = (int) Math.pow(10, 15);
@@ -31,24 +31,26 @@ public class SolarSystem {
         int sunRadius = 25;
         double sunMass = 1.98892e30;
         root = new CelestrialBody(x * PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE, y * PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE,
-                sunRadius * EXP_SCALE, sunMass, true, null, root, this);
+                sunRadius * EXP_SCALE, sunMass, true, null, root,this);
         bodies.add(root);
 
         generateSolarSystem(root);
-        // TimeChangeThread timeChangeThread = new TimeChangeThread(this);
-        // Thread myThread = new Thread(timeChangeThread);
-        // myThread.start();
-        TIMESTEP = PHYSICS_CONSTANT.TIMESTEP_DEFAULT;
+   //     TimeChangeThread timeChangeThread = new TimeChangeThread(this);
+     //   Thread myThread = new Thread(timeChangeThread);
+       // myThread.start();
+       TIMESTEP = PHYSICS_CONSTANT.TIMESTEP_DEFAULT;
+
 
     }
 
     public void update() {
-
+        
         for (int i = 1; i < bodies.size(); i++) {
             bodies.get(i).update(bodies);
         }
-
+        
     }
+
 
     // Generate the model of our solar system
     private void generateDefaultSolarSystem(CelestrialBody parent) {
@@ -58,22 +60,22 @@ public class SolarSystem {
         // Generate Mercury celestrial body
         newColor = Color.DARK_GRAY;
         bodies.add(new CelestrialBody((PHYSICS_CONSTANT.MERCURY_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
-                8 * EXP_SCALE, 3.30e23, false, newColor, parent, this));
+                8 * EXP_SCALE, 3.30e23, false, newColor, parent,this));
 
         // Generate Venus celestrial body
         newColor = Color.WHITE;
         bodies.add(new CelestrialBody((PHYSICS_CONSTANT.VENUS_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
-                14 * EXP_SCALE, 4.8685e24, false, newColor, parent, this));
+                14 * EXP_SCALE, 4.8685e24, false, newColor, parent,this));
 
         // Generate Earth celestrial body
         newColor = Color.BLUE;
         bodies.add(new CelestrialBody((PHYSICS_CONSTANT.EARTH_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
-                16 * EXP_SCALE, 5.9742e24, false, newColor, parent, this));
+                16 * EXP_SCALE, 5.9742e24, false, newColor, parent,this));
 
         // Generate Mars celestrial body
         newColor = Color.RED;
         bodies.add(new CelestrialBody((PHYSICS_CONSTANT.MARS_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
-                12 * EXP_SCALE, 6.39e23, false, newColor, parent, this));
+                12 * EXP_SCALE, 6.39e23, false, newColor, parent,this));
     }
 
     // Generate random solar system
@@ -128,7 +130,7 @@ public class SolarSystem {
             Color newColor = new Color((float) r, (float) g, (float) b);
 
             bodies.add(new CelestrialBody((PHYSICS_CONSTANT.AU * newDistanceToSun) + root.pos.x, root.pos.y,
-                    newRadius * EXP_SCALE, newMass, false, newColor, parent, this));
+                    newRadius * EXP_SCALE, newMass, false, newColor, parent,this));
 
         }
 
@@ -143,12 +145,12 @@ public class SolarSystem {
 
     public static double generateRandomWithSteps(double min, double max, double step) {
 
-        if (max < min) {
+        if(max < min){
             double temp = min;
             min = max;
             max = temp;
         }
-
+        
         Random random = new Random();
         double range = (max - min) / step + 1;
         double randomIndex = random.nextDouble(range);
