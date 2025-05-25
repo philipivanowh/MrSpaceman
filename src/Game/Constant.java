@@ -34,7 +34,7 @@ public class Constant {
         public static final double PIXELS_TO_AU_SCALE = AU / 7000; // 1AU = 100 pixels
                                                         
         public static final double TIMESTEP_FAST = 3600 * 6;    // half day  time
-        public static final double TIMESTEP_DEFAULT = 3600;
+        public static final double TIMESTEP = 3600/4; //Update the orbit based on quater a seconds
         // step
         // Our solar system's data
 
@@ -46,15 +46,13 @@ public class Constant {
         public static final double MERCURY_DISTANCE_TO_SUN_AU = 0.387 * AU;
 
         public static final double VENUS_DISTANCE_TO_SUN_AU = 0.723 * AU;
-
         
         public static final Range AMOUNT_OF_ORBIT_RANGE = new Range(3, 4);
 
         
         public static final Range CELESTRIAL_BODY_RADIUS_RANGE = new Range(8, 16);
 
-
-        public static final Range FIRST_PLANET_DISTNACE_TO_SUN_RANGE = new Range(.3, 0.5);
+        public static final Range FIRST_PLANET_DISTNACE_TO_SUN_RANGE = new Range(.4, 0.5);
         
         public static final Range SECOND_PLANET_DISTNACE_TO_SUN_RANGE = new Range(.75, 0.9);
         
@@ -62,9 +60,16 @@ public class Constant {
         
         public static final Range FOURTH_PLANET_DISTNACE_TO_SUN_RANGE = new Range(1.6, 1.7);
         
-        public static final Range FITH_PLANET_DISTNACE_TO_SUN_RANGE = new Range(1.9, 1.95);
+        public static final Range FIFTH_PLANET_DISTNACE_TO_SUN_RANGE = new Range(1.9, 1.95);
 
     }
+
+    public enum CELESTRIAL_BODY_TYPE{
+        SUN,
+        PLANET,
+        MOON,
+        BLACK_HOLE
+    };
 
     public static class PLAYER_CONST {
         public static final double VEL_DECAY = .9f;

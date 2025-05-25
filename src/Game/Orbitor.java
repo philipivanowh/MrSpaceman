@@ -113,8 +113,8 @@ public class Orbitor extends JPanel implements Runnable {
 		hud.setColor(Color.WHITE);
 		hud.setFont(new Font("Consolas", Font.PLAIN, 14));
 
-		String msg = String.format("x: %.0f   y: %.0f   θ: %.1f°",
-				player.pos.x, player.pos.y, player.angle);
+		String msg = String.format("x: %.0f   y: %.0f   θ: %.1f° vx: %.0f vy: %.0f",
+				player.pos.x, player.pos.y, player.angle, player.vel.x, player.vel.y);
 		hud.drawString(msg, 10, 20);
 
 		g2.dispose();

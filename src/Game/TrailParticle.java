@@ -42,7 +42,7 @@ public class TrailParticle extends Entity {
      */
     public TrailParticle(double x, double y, double shipAngle, Constant.ThrustType thrustType) {
 
-        super(x, y,0);
+        super(x, y,1,1,0);
 
         double cosA = (double) Math.cos(shipAngle);
         double sinA = (double) Math.sin(shipAngle);

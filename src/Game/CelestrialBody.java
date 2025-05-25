@@ -1,5 +1,6 @@
 package Game;
 
+import Game.Constant.CELESTRIAL_BODY_TYPE;
 import Game.Constant.PHYSICS_CONSTANT;
 import Game.utils.Vector2D;
 import java.awt.BasicStroke;
@@ -13,8 +14,6 @@ import java.util.List;
 public class CelestrialBody extends Entity{
     public double radius = 0;
 
-    Vector2D force = new Vector2D();
-
     private Color color;
 
     private int glowSize;
@@ -23,39 +22,38 @@ public class CelestrialBody extends Entity{
 
     public double distance_to_sun;
     // Is the celetrial body a sun
-    public boolean sun;
+    public CELESTRIAL_BODY_TYPE bodyType;
 
     public CelestrialBody parent;
 
-    public SolarSystem system;
-
     public ArrayList<Vector2D> orbits = new ArrayList<>();
 
-    public CelestrialBody(double x, double y, double radius, double mass, boolean sun, Color color,
+    public CelestrialBody(double x, double y, double radius, double mass, CELESTRIAL_BODY_TYPE bodyType, Color color,
             CelestrialBody parent, SolarSystem system) {
-       super(x,y,mass);
+        super(x,y,radius,radius,mass);
         this.radius = radius;
-        this.sun = sun;
+        this.bodyType = bodyType;
         glowSize = (int) (radius * 0.2);
         this.color = color;
         this.mass = mass;
-        if (!sun) {
+        if (bodyType == CELESTRIAL_BODY_TYPE.PLANET) {
             vel.y = optimalOrbitalVelocity(parent).length();
         }
 
         this.parent = parent;
-        this.system = system;
 
     }
 
+    //update the position
     public void update(ArrayList<CelestrialBody> other) {
 
         updateNetGravitationalForce(other);
-        vel.x += force.x / mass * system.TIMESTEP;
-        vel.y += force.y / mass * system.TIMESTEP;
+        //Vel is in AU scale
+        vel.x += force.x / mass * PHYSICS_CONSTANT.TIMESTEP;
+        vel.y += force.y / mass * PHYSICS_CONSTANT.TIMESTEP;
 
-        pos.x += vel.x * system.TIMESTEP;
-        pos.y += vel.y * system.TIMESTEP;
+        pos.x += vel.x * PHYSICS_CONSTANT.TIMESTEP;
+        pos.y += vel.y * PHYSICS_CONSTANT.TIMESTEP;
 
         // orbit cord update
         double px = (int) ((pos.x) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
@@ -71,7 +69,7 @@ public class CelestrialBody extends Entity{
         for (CelestrialBody planet : planets) {
             if (planet == this)
                 continue;
-            Vector2D f = attraction(planet);
+            Vector2D f = attraction(planet,pos);
             force.x += f.x;
             force.y += f.y;
         }
@@ -87,17 +85,13 @@ public class CelestrialBody extends Entity{
             drawOrbit(g2, orbits, 3f);
         }
 
-        // Draw glow effect
-        if (sun == true)
-            g2.setColor(Color.orange);
-        else {
-            g2.setColor(color);
-        }
+        g2.setColor(color);
+        
 
         int centerX = (int) (pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE - radius / 2);
         int centerY = (int) (pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE - radius / 2);
 
-        g2.fillOval(centerX, centerY, (int) radius, (int) radius);
+       g2.fillOval(centerX, centerY, (int) radius, (int) radius);
 
     }
 
@@ -128,25 +122,6 @@ public class CelestrialBody extends Entity{
         g2.setStroke(oldStroke);
     }
 
-    public Vector2D attraction(CelestrialBody body) {
-        Vector2D delta = Vector2D.subtract(body.pos, this.pos);
-
-        double distSq = delta.x * delta.x + delta.y * delta.y;
-        if (distSq == 0) {
-            // overlapping bodies? no gravity
-            return new Vector2D(0, 0);
-        }
-
-        // F = G*m1*m2 / (r^2)
-        double magnitude = PHYSICS_CONSTANT.G * body.mass * this.mass / distSq;
-
-        double theta = delta.getAngle();
-        Vector2D newForce = new Vector2D();
-        newForce.x = (Math.cos(theta) * magnitude);
-        newForce.y = (Math.sin(theta) * magnitude);
-
-        return newForce;
-    }
 
     /**
      * @param centralBody the body you want to orbit (e.g. the Sun)
@@ -178,7 +153,7 @@ public class CelestrialBody extends Entity{
 
     @Override
     public String toString() {
-        return "Pos: [" + pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + ","
+        return "Pos: " + "[" + pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + " " + "," + " "
                 + pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + "]" + " Radius:" + radius + " Mass:" + mass;
     }
 }

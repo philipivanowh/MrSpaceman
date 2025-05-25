@@ -115,4 +115,9 @@ public class Vector2D {
         return new Vector2D(0, 0);
     }
 
+    public static double dot(Vector2D a, Vector2D b){
+        return  a.x * b.x + a.y * b.y;
+    }
+
+
 }
