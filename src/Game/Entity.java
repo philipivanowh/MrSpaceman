@@ -4,9 +4,21 @@ import Game.Constant.PHYSICS_CONSTANT;
 import Game.utils.Vector2D;
 import java.awt.Graphics2D;
 
+/*
+ * Entity class represents a generic entity in the game.
+ * It serves as a base class for all game entities, such as celestrial bodies and players.
+ * It contains properties like position, velocity, force, width, height, angle, and mass.
+ * It provides methods for rendering, calculating gravitational attraction, and retrieving mass.  
+ * * The attraction method calculates the gravitational force between this entity and a celestrial body.
+ * The gravitational force is calculated using Newton's law of universal gravitation.
+ * The mass of the entity can be retrieved using the getMass method.
+ * This class is abstract.
+ */
 public abstract class Entity {
+    // position, velocity, acceleration, force, width, height, angle, and mass of the entity
     protected Vector2D pos = new Vector2D();
     protected Vector2D vel = new Vector2D();
+    protected Vector2D acc = new Vector2D();
     protected Vector2D force = new Vector2D();
     protected double width;
     protected double height;
@@ -14,6 +26,16 @@ public abstract class Entity {
     protected double angle;
     protected double mass;
 
+    /*
+     * Constructor for the Entity class.
+     * Initializes an entity with a position, width, height, and mass.
+     * * @param x The x-coordinate of the entity's position.
+     * @param y The y-coordinate of the entity's position.
+     * @param width The width of the entity.
+     * @param height The height of the entity.
+     * @param mass The mass of the entity.
+     * This constructor sets the position, width, height, and mass of the entity.
+     */
     public Entity(double x, double y, double width,double height ,double mass) {
 
         this.pos.x = x;

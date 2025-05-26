@@ -2,13 +2,22 @@ package Game;
 
 import Game.Constant.CELESTRIAL_BODY_TYPE;
 import Game.Constant.PHYSICS_CONSTANT;
-import Game.utils.Range;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+/*
+ * SolarSystem class represents a model of our solar system
+ * It contains a root celestrial body (the sun) and other celestrial bodies (planets)
+ * It can generate a default solar system or a random one
+ * All the created celestrial bodies are added to the bodies list to be managed
+ * It updates the positions of the celestrial bodies based on their gravitational interactions
+ * It renders the celestrial bodies on the screen
+ * It provides methods to get the celestrial bodies and the root celestrial body
+ * It creates the mass of the celestrial bodies based on its volume and a constant factor
+ */
 public class SolarSystem {
 
     private ArrayList<CelestrialBody> bodies = new ArrayList<>();
@@ -25,6 +34,13 @@ public class SolarSystem {
     private final int FOURTH_ORBIT = 3;
     private final int FIFTH_ORBIT = 4;
 
+    /**
+     * Constructor for the SolarSystem class.
+     * Initializes the solar system with a root celestrial body (the sun) at a given position.
+     *
+     * @param x The x-coordinate of the sun's position in pixels units.
+     * @param y The y-coordinate of the sun's position in pixels units.
+     */
     public SolarSystem(int x, int y) {
 
         // Creating the sun
@@ -34,11 +50,13 @@ public class SolarSystem {
                 sunRadius * EXP_SCALE, sunMass, Constant.CELESTRIAL_BODY_TYPE.SUN, Color.ORANGE, root,this);
         bodies.add(root);
 
-        // generateDefaultSolarSystem(root);
         generateSolarSystem(root);
         
     }
 
+    /*
+     * Update the positions of all celestrial bodies in the solar system.
+     */
     public void update() {
 
         for (int i = 1; i < bodies.size(); i++) {
@@ -46,8 +64,11 @@ public class SolarSystem {
         }
     }
 
-    // Generate the model of our solar system
-    private void generateDefaultSolarSystem(CelestrialBody parent) {
+    /**
+     * Generates a default solar system with planets similar to our own.
+     * This method creates the planets Mercury, Venus, Earth, and Mars with predefined properties.
+     */
+    private void generateDefaultSolarSystem() {
 
         Random rand = new Random();
         // Will produce only bright / light colours:
@@ -59,29 +80,34 @@ public class SolarSystem {
         // Generate Mercury celestrial body
         newColor = Color.DARK_GRAY;
         bodies.add(new CelestrialBody((PHYSICS_CONSTANT.MERCURY_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
-                8 * EXP_SCALE, 3.30e23, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
+                8 * EXP_SCALE, 3.30e23, CELESTRIAL_BODY_TYPE.PLANET, newColor, root,this));
 
         // Generate Venus celestrial body
         newColor = Color.WHITE;
         bodies.add(new CelestrialBody((PHYSICS_CONSTANT.VENUS_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
-                14 * EXP_SCALE, 4.8685e24, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
+                14 * EXP_SCALE, 4.8685e24, CELESTRIAL_BODY_TYPE.PLANET, newColor, root,this));
 
         // Generate Earth celestrial body
         newColor = Color.BLUE;
         bodies.add(new CelestrialBody((PHYSICS_CONSTANT.EARTH_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
-                16 * EXP_SCALE, 5.9742e24, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
+                16 * EXP_SCALE, 5.9742e24, CELESTRIAL_BODY_TYPE.PLANET, newColor, root,this));
 
         // Generate Mars celestrial body
         newColor = Color.RED;
         bodies.add(new CelestrialBody((PHYSICS_CONSTANT.MARS_DISTANCE_TO_SUN_AU) + root.pos.x, root.pos.y,
-                12 * EXP_SCALE, 6.39e23, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
+                12 * EXP_SCALE, 6.39e23, CELESTRIAL_BODY_TYPE.PLANET, newColor, root,this));
     }
 
-    // Generate random solar system
+    /* * Generates a random solar system with planets.
+     * It creates a number of planets based on a random count and assigns them random properties.
+     * The planets are added to the solar system as celestrial bodies orbiting the sun.
+     * * @param parent The parent celestrial body (the sun) around which the planets will orbit.
+     */
     private void generateSolarSystem(CelestrialBody parent) {
 
         Random colorRand = new Random();
 
+        // Determien how many orbits (planets) to generate
         int numberOfOrbit = (int) generateRandomWithSteps(
                 PHYSICS_CONSTANT.AMOUNT_OF_ORBIT_RANGE.getMin(),
                 PHYSICS_CONSTANT.AMOUNT_OF_ORBIT_RANGE.getMax(),
@@ -89,10 +115,13 @@ public class SolarSystem {
 
         for (int i = 0; i < numberOfOrbit; i++) {
 
+            // Generate a random radius for the celestrial body
             double newRadius = generateRandomWithSteps(PHYSICS_CONSTANT.CELESTRIAL_BODY_RADIUS_RANGE.getMin(),
                     PHYSICS_CONSTANT.CELESTRIAL_BODY_RADIUS_RANGE.getMax(), 1);
             double newDistanceToSun=0;
 
+            // Determine the distance to the sun based on the orbit index
+            // The distance to the sun is determined by the orbit index 
             if(i == FIRST_ORBIT){
              newDistanceToSun = generateRandomWithSteps(PHYSICS_CONSTANT.FIRST_PLANET_DISTNACE_TO_SUN_RANGE.getMin(),
                     PHYSICS_CONSTANT.FIRST_PLANET_DISTNACE_TO_SUN_RANGE.getMax(), .1);
@@ -109,16 +138,15 @@ public class SolarSystem {
                  newDistanceToSun = generateRandomWithSteps(PHYSICS_CONSTANT.FIFTH_PLANET_DISTNACE_TO_SUN_RANGE.getMin(),
                     PHYSICS_CONSTANT.FIFTH_PLANET_DISTNACE_TO_SUN_RANGE.getMax(), .1);
             }
-
-            // double newMass = (4.0 / 3.0) * Math.PI * newRadius * newRadius * newRadius *
-            // EXP_SCALE;
-            double newMass = calculateSurfaceAreaOfBody(newRadius*EXP_SCALE)*1e15;
+            // Calculate the mass of the celestrial body based on its volume and a constant factor
+            double newMass = calculateVolumeOfBody(newRadius*EXP_SCALE)*1e15;
             // Will produce only bright / light colours:
             double r = colorRand.nextFloat() / 2f + 0.5;
             double g = colorRand.nextFloat() / 2f + 0.5;
             double b = colorRand.nextFloat() / 2f + 0.5;
             Color newColor = new Color((float) r, (float) g, (float) b);
 
+            // Create a new celestrial body (planet) and add it to the solar system
             bodies.add(new CelestrialBody((PHYSICS_CONSTANT.AU * newDistanceToSun) + root.pos.x, root.pos.y,
                     newRadius * EXP_SCALE, newMass, CELESTRIAL_BODY_TYPE.PLANET, newColor, parent,this));
 
@@ -127,11 +155,18 @@ public class SolarSystem {
 
     }
 
-    public static double calculateSurfaceAreaOfBody(double radius){
+     /*
+     * Calculates the volume of a spherical body given its radius.
+     * The formula used is V = 4/3 * π * r^3.
+     *
+     * @param radius The radius of the spherical body.
+     * @return The volume of the body.
+     */
+    public static double calculateVolumeOfBody(double radius){
         return 4/3 * Math.PI * radius * radius * radius;
     }
 
-    /** Returns a random number in [min, max] with the given step size. */
+    /* Returns a random number in [min, max] with the given step size. */
     public static double generateRandomWithSteps(double min,
             double max,
             double step) {
@@ -146,6 +181,9 @@ public class SolarSystem {
         return min + rnd * step;
     }
 
+    /*
+     * Renders all celestrial bodies in the solar system.
+     */
     public void render(Graphics2D g2) {
 
         for (CelestrialBody body : bodies) {
@@ -154,9 +192,19 @@ public class SolarSystem {
 
     }
 
+    /**
+     * Returns the list of all celestrial bodies in the solar system.
+     *
+     * @return An ArrayList containing all celestrial bodies.
+     */
     public ArrayList<CelestrialBody> getCelestrialBodies() {
         return bodies;
     }
+    /**
+     * Returns the root celestrial body of the solar system (the sun).
+     *
+     * @return The root CelestrialBody representing the sun.
+     */
     public CelestrialBody getRoot() {
         return root;
     }

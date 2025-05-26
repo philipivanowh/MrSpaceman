@@ -12,17 +12,39 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+/*
+ * Player class represents the player-controlled spaceship in the game
+ * Player consist of three movement modes: main thrust, left thrust, right thrust
+ * Player is affected by gravity from celestrial bodies in the solar system
+ * Player can collide with celestrial bodies, which are planets or the sun
+ * Player can leave a trail of particles when thrusting
+ * Player can rotate towards the mouse cursor when not colliding with a celestrial body
+ * Player can decay velocity over time
+ * Player can be controlled using the keyboard and mouse
+ * Player can be rendered on the screen
+ * Player can be updated based on the time delta
+ */
 public class Player extends Entity {
 
     private final FrameAnimation currAnimation;
     private final FrameAnimation idleAnimation;
     private final List<TrailParticle> particles = new ArrayList<>();
     private CelestrialBody collidingBody;
+
+    // gravitational strength adjuster applied for smoother gameplay
     private final float GravityStrengthModifier = 7;
+    private final float PlanetGravityStrengthModifier = GravityStrengthModifier*1e5f;
 
     // small fudge factor for collision radius
     private static final double COLLIDE_MOD = 0.97;
 
+    /**
+     * Constructor for the Player class.
+     * Initializes the player at a given position with a default size and mass.
+     *
+     * @param x The x-coordinate of the player's position.
+     * @param y The y-coordinate of the player's position.
+     */
     public Player(double x, double y) {
         super(x, y, PLAYER_CONST.SHIP_W, PLAYER_CONST.SHIP_H, 1e14);
         idleAnimation = new FrameAnimation(0.1f, false);
@@ -30,6 +52,9 @@ public class Player extends Entity {
         currAnimation = idleAnimation;
     }
 
+    /*
+     * Updating the trail particles left by the player.
+     */
     private void updateParticles() {
         Iterator<TrailParticle> it = particles.iterator();
         while (it.hasNext()) {
@@ -46,10 +71,8 @@ public class Player extends Entity {
      */
     private void updateGravity() {
         updateNetGravitationalForce(Orbitor.currentSolarSystem.getCelestrialBodies());
-        double ax = (force.x / mass);
-        double ay = (force.y / mass);
-        vel.x += ax;
-        vel.y += ay;
+        acc.x = (force.x / mass);
+        acc.y = (force.y / mass);
     }
 
     public void update(double dt) {
@@ -99,12 +122,17 @@ public class Player extends Entity {
 
         // velocity decay
         velocityDecay(dt);
-        // apply velocity
+
+        //apply acceleration to velocity
+        vel.x += acc.x;
+        vel.y += acc.y;
+
+        // apply velocity to position
         this.pos.x += vel.x * dt;
         this.pos.y += vel.y * dt;
     }
 
-    /**
+    /*
      * Compute sum of gravitational forces (N) from all bodies.
      */
     public void updateNetGravitationalForce(List<CelestrialBody> bodies) {
@@ -114,7 +142,7 @@ public class Player extends Entity {
             if (body.bodyType == Constant.CELESTRIAL_BODY_TYPE.SUN) {
                 g.multiply(GravityStrengthModifier);
             } else if (body.bodyType == Constant.CELESTRIAL_BODY_TYPE.PLANET) {
-                g.multiply(GravityStrengthModifier * 1e5);
+                g.multiply(PlanetGravityStrengthModifier);
             }
             force.x += g.x;
             force.y += g.y;
@@ -132,14 +160,20 @@ public class Player extends Entity {
             return;
         }
 
-        vel.x = 0;
-        vel.y = 0;
+        vel.x = body.vel.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE;
+        vel.y = body.vel.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE;
         
     
     }
 
-    /**
-     * Simple circle-based collision detection.
+  /**
+     * Checks if the player collides with any planets in the solar system.
+     * If a collision is detected, it returns the colliding planet.
+     * Otherwise, it returns null.
+     *
+     * @param system The SolarSystem object containing all celestial bodies.
+     * @return The CelestrialBody that the player collides with, or null if no
+     * collision occurs.
      */
     public CelestrialBody checkCollisionWithPlanets(SolarSystem system) {
         for (CelestrialBody body : system.getCelestrialBodies()) {
@@ -152,6 +186,16 @@ public class Player extends Entity {
         return null;
     }
 
+    /*
+     * Renders the player on the screen.
+     * The player is drawn at its current position and angle, with the current
+     * animation frame. The player also leaves a trail of particles behind.
+     * @param g2 The Graphics2D object used for rendering.
+     * This method applies a translation and rotation to the graphics context
+     * before drawing the player image, and restores the original transformation
+     * after drawing. It also iterates through the list of trail particles and
+     * renders each one.
+     */
     @Override
     public void render(Graphics2D g2) {
         AffineTransform old = g2.getTransform();
@@ -165,6 +209,15 @@ public class Player extends Entity {
         }
     }
 
+    /*
+     * Clamps the angle to the range [-PI, PI].
+     * This is useful to ensure that the angle does not exceed the limits of
+     * the trigonometric functions, which can lead to unexpected behavior.
+     * @param a The angle to be clamped.
+     * @return The clamped angle in radians, within the range [-PI, PI].
+     * This method uses a simple while loop to adjust the angle until it falls
+     * within the desired range. It adds or subtracts 2*PI as necessary.
+     */
     private double clampAngle(double a) {
         while (a <= -Math.PI) {
             a += 2 * Math.PI;
@@ -175,6 +228,15 @@ public class Player extends Entity {
         return a;
     }
 
+    /*
+     * Applies velocity decay to the player's velocity vector.
+     * This method reduces the velocity over time to simulate friction or
+     * drag in space. The decay factor is based on the PLAYER_CONST.VEL_DECAY
+     * constant, which is a value between 0 and 1. The decay is applied
+     * separately to the x and y components of the velocity vector.
+     * If the velocity is below a certain threshold, it is set to zero.
+     * @param dt The time delta since the last update, used to scale the decay.
+     */
     private void velocityDecay(double dt) {
         if (vel.length() <= .1) {
             vel = Vector2D.ZERO;

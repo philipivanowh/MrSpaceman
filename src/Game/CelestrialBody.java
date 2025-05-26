@@ -11,26 +11,61 @@ import java.awt.Stroke;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CelestrialBody extends Entity{
+/*
+ * CelestrialBody class represents a celestrial body in the solar system
+ * It can be a planet,sun,black hole, or a moon depending on its CelestrialBodyType
+ * It has a position, velocity, radius, mass, and color
+ * It can update its position based on gravitational forces from other celestrial bodies
+ * It can render itself on the screen as a circle
+ * It can calculate its optimal orbital velocity around a central body
+ * It can draw its orbit based on its travelled path
+ */
+public class CelestrialBody extends Entity {
+    // radius of the celestrial body in pixels
     public double radius = 0;
 
+    // color of the celestrial body
     private Color color;
 
     private int glowSize;
 
+    // mass of the celestrial body in kg
     private double mass;
 
-    public double distance_to_sun;
     // Is the celetrial body a sun
     public CELESTRIAL_BODY_TYPE bodyType;
 
+    // The parent celestrial body, e.g., the sun for planets
     public CelestrialBody parent;
 
+    // track the path of the celestrial body
+    // This is used to draw the orbit of the celestrial body
     public ArrayList<Vector2D> orbits = new ArrayList<>();
 
+    /*
+     * Constructor for the CelestrialBody class.
+     * Initializes a celestrial body with a position, radius, mass, type, color,
+     * parent body, and solar system.
+     *
+     * @param x The x-coordinate of the celestrial body's position in AU scale.
+     * 
+     * @param y The y-coordinate of the celestrial body's position in AU scale.
+     * 
+     * @param radius The radius of the celestrial body in pixels.
+     * 
+     * @param mass The mass of the celestrial body in kg.
+     * 
+     * @param bodyType The type of the celestrial body (e.g., planet, sun).
+     * 
+     * @param color The color of the celestrial body.
+     * 
+     * @param parent The parent celestrial body (e.g., the sun for planets).
+     * 
+     * @param system The solar system to which this celestrial body belongs.
+     */
     public CelestrialBody(double x, double y, double radius, double mass, CELESTRIAL_BODY_TYPE bodyType, Color color,
             CelestrialBody parent, SolarSystem system) {
-        super(x,y,radius,radius,mass);
+        super(x, y, radius, radius, mass);
         this.radius = radius;
         this.bodyType = bodyType;
         glowSize = (int) (radius * 0.2);
@@ -44,11 +79,17 @@ public class CelestrialBody extends Entity{
 
     }
 
-    //update the position
+    /*
+     * Update the position and velocity of the celestrial body based on
+     * gravitational forces from other celestrial bodies.
+     * updates its velocity based on that force, and then updates its position
+     * accordingly.
+     * It also updates the orbit path of the celestrial body.
+     */
     public void update(ArrayList<CelestrialBody> other) {
 
         updateNetGravitationalForce(other);
-        //Vel is in AU scale
+        // Vel is in AU scale
         vel.x += force.x / mass * PHYSICS_CONSTANT.TIMESTEP;
         vel.y += force.y / mass * PHYSICS_CONSTANT.TIMESTEP;
 
@@ -62,6 +103,17 @@ public class CelestrialBody extends Entity{
 
     }
 
+    /*
+     * Calculate the gravitational attraction force (N) between this body and
+     * another body.
+     * Uses Newton's law of universal gravitation: F = G * (m1 * m2) / r^2
+     *
+     * @param other The other celestrial body to which this body is attracted.
+     * 
+     * @param pos The position of this celestrial body.
+     * 
+     * @return A Vector2D representing the gravitational force vector.
+     */
     public void updateNetGravitationalForce(ArrayList<CelestrialBody> planets) {
         // clear last frame’s total
         force.x = 0;
@@ -69,13 +121,21 @@ public class CelestrialBody extends Entity{
         for (CelestrialBody planet : planets) {
             if (planet == this)
                 continue;
-            Vector2D f = attraction(planet,pos);
+            Vector2D f = attraction(planet, pos);
             force.x += f.x;
             force.y += f.y;
         }
     }
 
-    // Render a pixalated oval
+    /*
+     * Render the celestrial body on the screen.
+     * It draws the orbit if there are more than 3 points in the orbit path.
+     * It draws the celestrial body as a filled circle at its position.
+     * it sets the color for the celestrial body
+     * the x and y coordinates are used as the center of the circle instead of the top-left corner
+     * @param g2 The Graphics2D object used for rendering.
+     */
+    @Override
     public void render(Graphics2D g2) {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -85,17 +145,21 @@ public class CelestrialBody extends Entity{
             drawOrbit(g2, orbits, 3f);
         }
 
+        //set the color for of the planet
         g2.setColor(color);
-        
 
         int centerX = (int) (pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE - radius / 2);
         int centerY = (int) (pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE - radius / 2);
 
-       g2.fillOval(centerX, centerY, (int) radius, (int) radius);
+        g2.fillOval(centerX, centerY, (int) radius, (int) radius);
 
     }
 
-    // Draw an orbit based on its travelled path
+    /*
+     * Draws the orbit of the celestrial body as a polyline.
+     * It takes a list of Vector2D points representing the orbit in game coordinates
+     * and draws them as a polyline with the specified thickness.
+     */
     private void drawOrbit(Graphics2D g2, List<Vector2D> orbitGameCoords, float thickness) {
 
         // save old stroke
@@ -121,7 +185,6 @@ public class CelestrialBody extends Entity{
         // restore original stroke
         g2.setStroke(oldStroke);
     }
-
 
     /**
      * @param centralBody the body you want to orbit (e.g. the Sun)
@@ -151,6 +214,12 @@ public class CelestrialBody extends Entity{
                 uy * (float) speed);
     }
 
+    /*
+     * Display the position,radius and mass of the celestrial body
+     * in a string format.
+     * @return A string representation of the celestrial body.
+     * This method is useful for debugging and logging purposes.
+     */
     @Override
     public String toString() {
         return "Pos: " + "[" + pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + " " + "," + " "

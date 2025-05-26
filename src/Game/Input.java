@@ -7,6 +7,15 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
+/*
+ * Input class handles keyboard and mouse inputs for the game.
+ * It implements KeyListener and MouseListener interfaces to capture key presses,
+ * mouse clicks, and mouse movements.
+ * It provides methods to check if specific keys are pressed (e.g., thrusting keys)
+ * and to get the mouse position relative to the screen and world coordinates.
+ * It also maintains a camera reference to adjust mouse coordinates based on the camera's position.
+ * * The class uses static arrays to store the state of keys and mouse buttons, 
+ */
 public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
     // key mask that stores if a key is pressed
@@ -18,7 +27,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
     // mouse button mask that stores if a button is pressed
     private static boolean[] mouseButtons = new boolean[4];
 
-     // a reference to camera
+    // a reference to camera
     private static Camera camera;
 
     public static void setCamera(Camera camera) {
@@ -29,11 +38,11 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
         return keys[KeyEvent.VK_W] || keys[KeyEvent.VK_UP];
     }
 
-    public static boolean isLeftThrusting(){
+    public static boolean isLeftThrusting() {
         return keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A];
     }
 
-    public static boolean isRightThrusting(){
+    public static boolean isRightThrusting() {
         return keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D];
     }
 
@@ -46,20 +55,24 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
     }
 
     @Override
-    public void keyTyped(KeyEvent e) {}
+    public void keyTyped(KeyEvent e) {
+    }
 
     @Override
-    public void mouseEntered(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {
+    }
 
     @Override
-    public void mouseExited(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {
+    }
 
     @Override
-    public void mouseDragged(MouseEvent e) {}
+    public void mouseDragged(MouseEvent e) {
+    }
 
     @Override
     public void keyPressed(KeyEvent e) {
-       keys[e.getKeyCode()] = true;
+        keys[e.getKeyCode()] = true;
     }
 
     @Override
@@ -69,7 +82,7 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        mousePos = new Vector2D(e.getX(), e.getY());   
+        mousePos = new Vector2D(e.getX(), e.getY());
     }
 
     @Override
