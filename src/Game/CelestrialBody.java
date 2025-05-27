@@ -89,10 +89,14 @@ public class CelestrialBody extends Entity {
     public void update(ArrayList<CelestrialBody> other) {
 
         updateNetGravitationalForce(other);
-        // Vel is in AU scale
-        vel.x += force.x / mass * PHYSICS_CONSTANT.TIMESTEP;
-        vel.y += force.y / mass * PHYSICS_CONSTANT.TIMESTEP;
+        // Acceleration is in AU scale
+        acc.x = force.x / mass * PHYSICS_CONSTANT.TIMESTEP;
+        acc.y = force.y / mass * PHYSICS_CONSTANT.TIMESTEP;
 
+        //aply acceleration to velocity
+        vel.x += acc.x;
+        vel.y += acc.y;
+        // apply velocity to position
         pos.x += vel.x * PHYSICS_CONSTANT.TIMESTEP;
         pos.y += vel.y * PHYSICS_CONSTANT.TIMESTEP;
 
@@ -222,7 +226,34 @@ public class CelestrialBody extends Entity {
      */
     @Override
     public String toString() {
-        return "Pos: " + "[" + pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + " " + "," + " "
-                + pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE + "]" + " Radius:" + radius + " Mass:" + mass;
+        return "Pos: " + getPos() + " Radius:" + radius + " Mass:" + mass + " Vel: "+getVel() ;
+    }
+
+    /*
+     * Get position of the celestrial body in pixel units
+     */
+    @Override
+    public Vector2D getPos(){
+        return new Vector2D(pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+    }
+
+    /*
+     * get velocity of the celestrial body in pixel/s.
+     */
+    @Override
+    public Vector2D getVel() {
+        return new Vector2D(vel.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, vel.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+    }
+
+    /*
+     * get acceleration of the celestrial body in pixel/s**2.
+     */
+    public Vector2D getAcc(){
+        return new Vector2D(acc.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, acc.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+    }
+
+    @Override
+    public Vector2D getForce() {
+       return new Vector2D(force.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, force.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
     }
 }

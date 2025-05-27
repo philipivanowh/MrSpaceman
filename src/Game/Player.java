@@ -33,10 +33,11 @@ public class Player extends Entity {
 
     // gravitational strength adjuster applied for smoother gameplay
     private final float GravityStrengthModifier = 7;
-    private final float PlanetGravityStrengthModifier = GravityStrengthModifier*1e5f;
+    private final float PlanetGravityStrengthModifier = GravityStrengthModifier * 1e5f;
 
     // small fudge factor for collision radius
     private static final double COLLIDE_MOD = 0.97;
+    private static boolean escapingGravity = false;
 
     /**
      * Constructor for the Player class.
@@ -76,14 +77,23 @@ public class Player extends Entity {
     }
 
     public void update(double dt) {
+
+        // determine if on-ground
+        collidingBody = checkCollisionWithPlanets(Orbitor.currentSolarSystem);
         // update the player's particle
         updateParticles();
         // update the gravitational force
+    
+        if(collidingBody == null){
         updateGravity();
+        } else {
+            // if colliding with a planet, set acceleration to zero
+            acc.x = 0;
+            acc.y = 0;
+        }
+        
         // collision handling
         calculateCollisionWithPlanet(Orbitor.currentSolarSystem, dt);
-        // determine if on-ground
-        collidingBody = checkCollisionWithPlanets(Orbitor.currentSolarSystem);
         System.out.println(collidingBody);
 
         // rotation only when not colliding
@@ -98,8 +108,14 @@ public class Player extends Entity {
                 this.angle = clampAngle(this.angle + d);
             }
         }
+
         // main thrust
         if (Input.isThrusting()) {
+            if(collidingBody != null){
+                // if colliding with a planet, set velocity to zero
+                escapingGravity = false;
+            }
+
             this.vel.x += Math.cos(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
             this.vel.y += Math.sin(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
             particles.add(new TrailParticle(this.pos.x, this.pos.y, this.angle, ThrustType.CENTER));
@@ -121,11 +137,16 @@ public class Player extends Entity {
         }
 
         // velocity decay
-        velocityDecay(dt);
+       velocityDecay(dt);
 
-        //apply acceleration to velocity
+        // apply acceleration to velocity
         vel.x += acc.x;
         vel.y += acc.y;
+
+        if(collidingBody != null){
+            //vel.x = 0;
+           // vel.y = 0;
+        }
 
         // apply velocity to position
         this.pos.x += vel.x * dt;
@@ -150,8 +171,8 @@ public class Player extends Entity {
     }
 
     /**
-     * Collision resolution that handles moving platforms: - pushes out of
-     * overlap - applies relative velocity bounce - carries the player with the
+     * Collision resolution that handles moving platforms by aligning the player
+     * with the same acceleratio of the planet
      * platform
      */
     private void calculateCollisionWithPlanet(SolarSystem system, double dt) {
@@ -159,26 +180,39 @@ public class Player extends Entity {
         if (body == null) {
             return;
         }
+        Vector2D bodyVel = body.getVel();
+        Vector2D bodyAcc = body.getAcc();
 
-        vel.x = body.vel.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE;
-        vel.y = body.vel.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE;
-        
-    
+        pos.x -= vel.x * dt;
+        pos.y -= vel.y * dt;
+
+        pos.x += bodyVel.x * PHYSICS_CONSTANT.TIMESTEP + bodyAcc.x;
+        pos.y += bodyVel.y  * PHYSICS_CONSTANT.TIMESTEP + bodyAcc.y;
+
+        vel.x = 0;
+        vel.y = 0;
+
+       // vel.x = bodyVel.x;
+       // vel.y = bodyVel.y;
+
+        ///   vel.x += bodyAcc.x;
+        // vel.y += bodyAcc.y;
+
     }
 
-  /**
+    /**
      * Checks if the player collides with any planets in the solar system.
      * If a collision is detected, it returns the colliding planet.
      * Otherwise, it returns null.
      *
      * @param system The SolarSystem object containing all celestial bodies.
      * @return The CelestrialBody that the player collides with, or null if no
-     * collision occurs.
+     *         collision occurs.
      */
     public CelestrialBody checkCollisionWithPlanets(SolarSystem system) {
         for (CelestrialBody body : system.getCelestrialBodies()) {
-            Vector2D bodyPx = Vector2D.multiply(body.pos, PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
-            double d = Vector2D.subtract(pos, bodyPx).length();
+            double d = Vector2D.subtract(pos, Vector2D.multiply(body.pos, PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE))
+                    .length();
             if (d < (this.width / 2 + body.width / 2) * COLLIDE_MOD) {
                 return body;
             }
@@ -190,6 +224,7 @@ public class Player extends Entity {
      * Renders the player on the screen.
      * The player is drawn at its current position and angle, with the current
      * animation frame. The player also leaves a trail of particles behind.
+     * 
      * @param g2 The Graphics2D object used for rendering.
      * This method applies a translation and rotation to the graphics context
      * before drawing the player image, and restores the original transformation
@@ -213,7 +248,9 @@ public class Player extends Entity {
      * Clamps the angle to the range [-PI, PI].
      * This is useful to ensure that the angle does not exceed the limits of
      * the trigonometric functions, which can lead to unexpected behavior.
+     * 
      * @param a The angle to be clamped.
+     * 
      * @return The clamped angle in radians, within the range [-PI, PI].
      * This method uses a simple while loop to adjust the angle until it falls
      * within the desired range. It adds or subtracts 2*PI as necessary.
@@ -235,6 +272,7 @@ public class Player extends Entity {
      * constant, which is a value between 0 and 1. The decay is applied
      * separately to the x and y components of the velocity vector.
      * If the velocity is below a certain threshold, it is set to zero.
+     * 
      * @param dt The time delta since the last update, used to scale the decay.
      */
     private void velocityDecay(double dt) {
@@ -245,5 +283,26 @@ public class Player extends Entity {
         double f = Math.pow(PLAYER_CONST.VEL_DECAY, dt);
         vel.x = Math.abs(vel.x) > .1 ? vel.x * f : 0;
         vel.y = Math.abs(vel.y) > .1 ? vel.y * f : 0;
+    }
+
+    @Override
+    public Vector2D getPos() {
+        return this.pos;
+    }
+
+    @Override
+    public Vector2D getVel() {
+        return this.vel;
+    }
+
+    @Override
+    public Vector2D getAcc() {
+        return this.acc;
+
+    }
+
+    @Override
+    public Vector2D getForce() {
+        return this.force;
     }
 }

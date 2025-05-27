@@ -48,6 +48,16 @@ public abstract class Entity {
 
     // abstract function for rendering
     public abstract void render(Graphics2D g2);
+    // abstract getter function 
+    //Get pos
+    public abstract Vector2D getPos();
+    //Get vel
+    public abstract Vector2D getVel();
+    //Get acc
+    public abstract Vector2D getAcc();
+    //Get force
+    public abstract Vector2D getForce();
+    
 
     // calculates the gravitational force between objects
     // F = G*m1*m2 / (r^2)
@@ -82,6 +92,7 @@ public abstract class Entity {
     public double getMass() {
         return mass;
     }
+
 
   
 }

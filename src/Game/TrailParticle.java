@@ -1,6 +1,7 @@
 package Game;
 
 import Game.utils.Range;
+import Game.utils.Vector2D;
 import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Composite;
@@ -168,5 +169,26 @@ public class TrailParticle extends Entity {
 
         g2.setComposite(oldComp);
         g2.setColor(oldColor);
+    }
+
+      @Override
+    public Vector2D getPos() {
+        return this.pos;
+    }
+
+    @Override
+    public Vector2D getVel() {
+        return this.vel;
+    }
+
+    @Override
+    public Vector2D getAcc() {
+        return this.acc;
+       
+    }
+
+    @Override
+    public Vector2D getForce() {
+        return this.force;
     }
 }
