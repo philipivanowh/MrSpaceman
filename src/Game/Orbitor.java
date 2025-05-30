@@ -5,6 +5,7 @@ import Game.Constant.PHYSICS_CONSTANT;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.*;
 
@@ -30,6 +31,12 @@ public class Orbitor extends JPanel implements Runnable {
 	ArrayList<SolarSystem> systems = new ArrayList<SolarSystem>();
 
 	public static SolarSystem currentSolarSystem;
+
+
+    // Number of background stars
+    private static final int STAR_COUNT = 200;
+
+    private final ArrayList<Star> stars = new ArrayList<>();
 
 	/*
 	 * Constructor for the Orbitor class.
@@ -65,6 +72,7 @@ public class Orbitor extends JPanel implements Runnable {
 	private void StartGame() {
 		//GenerateCelestrialBody();
 		loadSolarSystem();
+		generateStars();
 		gameThread = new Thread(this);
 		gameThread.start();
 	}
@@ -78,6 +86,19 @@ public class Orbitor extends JPanel implements Runnable {
 		systems.add(solar);
 		currentSolarSystem = solar;
 	}
+
+	    /**
+     * Populate background stars with random positions and depth.
+     */
+    private void generateStars() {
+        Random rnd = new Random();
+        for (int i = 0; i < STAR_COUNT; i++) {
+            float depth = 0.01f + rnd.nextFloat() * 0.1f; // between 0.1 and 0.5
+            double x = rnd.nextDouble() * GAME_CONSTANT.WINDOW_WIDTH;
+            double y = rnd.nextDouble() * GAME_CONSTANT.WINDOW_HEIGHT;
+            stars.add(new Star(x, y, depth));
+        }
+    }
 
 	/*
 	 * This method is the main game loop that runs at a fixed frame rate.
@@ -113,7 +134,7 @@ public class Orbitor extends JPanel implements Runnable {
 	 * It is called every frame in the game loop.
 	 */
 	public void update(double deltaSeconds) {
-		camera.follow(player);
+		camera.follow(player, deltaSeconds);
 		player.update(deltaSeconds);
 
 		for(SolarSystem system : systems){
@@ -143,8 +164,12 @@ public class Orbitor extends JPanel implements Runnable {
 		// FIRST draw all orbits
 		g2.setColor(new Color(255, 255, 255, 64)); // translucent white
 
+		
+		//draw stars
+		drawBackgroundStars(g);
 		// draw the fixed planet system
 		drawSolarSystem(g2);
+
 
 		player.render(g2);
 
@@ -161,6 +186,20 @@ public class Orbitor extends JPanel implements Runnable {
 
 		g2.dispose();
 	}
+
+	    /**
+     * Draw parallax stars behind everything.
+     */
+    private void drawBackgroundStars(Graphics g) {
+        g.setColor(Color.WHITE);
+        for (Star s : stars) {
+            int sx = (int) ((s.pos.x - camera.getX() * s.depth) % GAME_CONSTANT.WINDOW_WIDTH);
+            int sy = (int) ((s.pos.y - camera.getY() * s.depth) % GAME_CONSTANT.WINDOW_HEIGHT);
+            if (sx < 0) sx += GAME_CONSTANT.WINDOW_WIDTH;
+            if (sy < 0) sy += GAME_CONSTANT.WINDOW_HEIGHT;
+            g.fillRect(sx, sy, 2, 2);
+        }
+    }
 
 	// This method draws all solar systems in the game.
 	private void drawSolarSystem(Graphics2D g2d) {

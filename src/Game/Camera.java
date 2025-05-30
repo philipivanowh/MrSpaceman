@@ -14,6 +14,14 @@ import Game.utils.*;
 public class Camera {
     final private Vector2D pos = new Vector2D();
 
+    private final Vector2D currentOffset = new Vector2D(0, 0);
+
+
+    // Look-ahead settings
+    private static final double DISTANCE_MULTIPLIER = 0.8;    // similar to Unity distanceMultiplier
+    private static final double MAX_OFFSET = 100.0;          // max pixels ahead
+    private static final double RESPONSIVENESS = 0.7;   
+
     /*
      * Constructor for the Camera class.
      * Initializes the camera with based on x and y position
@@ -29,16 +37,38 @@ public class Camera {
      * Follows the specified entity by adjusting the camera's position.
      * The camera centers itself on the entity, creating a smooth following effect.
      * 
-     * @param object The entity to follow (e.g., player).
+     * @param player The entity to follow.
      */
-    public void follow(Entity object) {
-        // target so that the player sits in the center of the window
-        double targetX = object.pos.x - GAME_CONSTANT.WINDOW_WIDTH / 2f;
-        double targetY = object.pos.y - GAME_CONSTANT.WINDOW_HEIGHT / 2f;
+    public void follow(Entity player, double dt) {
+         // Base target so player is centered
+        double targetX = player.pos.x - GAME_CONSTANT.WINDOW_WIDTH  / 2.0;
+        double targetY = player.pos.y - GAME_CONSTANT.WINDOW_HEIGHT / 2.0;
 
-        // smooth follow
-        pos.x += (targetX - pos.x) * 0.05f;
-        pos.y += (targetY - pos.y) * 0.05f;
+        // Compute forward direction
+        Vector2D forward = new Vector2D(Math.cos(player.angle), Math.sin(player.angle));
+
+        // Project velocity onto forward vector: dot product
+        Vector2D velocity = player.getVel();
+        double forwardSpeed = Vector2D.dot(velocity,forward);
+
+        // Desired offset in pixels
+        Vector2D targetOffset = forward.multiply(forwardSpeed * DISTANCE_MULTIPLIER);
+
+        // Clamp magnitude
+        double dist = targetOffset.length();
+        if (dist > MAX_OFFSET) {
+            targetOffset = Vector2D.normalize(targetOffset);
+            targetOffset.multiply(MAX_OFFSET);
+        }
+
+        // Smooth interpolation (Lerp)
+        double t = 1 - Math.exp(-RESPONSIVENESS * dt);
+        currentOffset.x += (targetOffset.x - currentOffset.x) * t;
+        currentOffset.y += (targetOffset.y - currentOffset.y) * t;
+
+        // Final camera position
+        pos.x = targetX + currentOffset.x;
+        pos.y = targetY + currentOffset.y;
     }
 
     /*

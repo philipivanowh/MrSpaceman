@@ -49,6 +49,15 @@ public class Constant {
         // step
         // Our solar system's data
 
+        //Sun information
+        public static final double SUN_MASS = 1.98892e30;
+
+        public static final int SUN_RADIUS = 30;
+
+        //Black hole information
+        public static final double BLACK_HOLE_MASS = 1.5e30;
+        public static final int BLACK_HOLE_RADIUS = 13;
+        
         // Each planets's distance to the sun
         public static final double EARTH_DISTANCE_TO_SUN_AU = AU;
 
@@ -58,10 +67,12 @@ public class Constant {
 
         public static final double VENUS_DISTANCE_TO_SUN_AU = 0.723 * AU;
 
+        public static final Range BLACK_DISTANCE_TO_SUN_AU = new Range(2,2.2);
+
         public static final Range AMOUNT_OF_ORBIT_RANGE = new Range(3, 4);
 
         // The radius of the celestrial body in pixels
-        public static final Range CELESTRIAL_BODY_RADIUS_RANGE = new Range(8, 16);
+        public static final Range CELESTRIAL_BODY_RADIUS_RANGE = new Range(5, 15);
 
         // The distance of the planets from the sun based on its orbit index/
         // The values are in AU scale

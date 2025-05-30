@@ -9,7 +9,6 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.util.ArrayList;
-import java.util.List;
 
 /*
  * CelestrialBody class represents a celestrial body in the solar system
@@ -38,9 +37,16 @@ public class CelestrialBody extends Entity {
     // The parent celestrial body, e.g., the sun for planets
     public CelestrialBody parent;
 
+    public CelestrialBody moon;
+
     // track the path of the celestrial body
     // This is used to draw the orbit of the celestrial body
     public ArrayList<Vector2D> orbits = new ArrayList<>();
+
+    // store initial orbital parameters for ellipse
+    private final double initRau;
+    private final double initVxau;
+    private final double initVyau;
 
     /*
      * Constructor for the CelestrialBody class.
@@ -65,9 +71,11 @@ public class CelestrialBody extends Entity {
      */
     public CelestrialBody(double x, double y, double radius, double mass, CELESTRIAL_BODY_TYPE bodyType, Color color,
             CelestrialBody parent, SolarSystem system) {
-        super(x, y, radius, radius, mass);
+        super(x, y, radius * 2, radius * 2, mass);
         this.radius = radius;
         this.bodyType = bodyType;
+
+        //Useless right now
         glowSize = (int) (radius * 0.2);
         this.color = color;
         this.mass = mass;
@@ -76,6 +84,18 @@ public class CelestrialBody extends Entity {
         }
 
         this.parent = parent;
+
+        // record initial orbital state in AU units
+        if (parent != null) {
+            Vector2D deltaAU = Vector2D.subtract(this.pos, parent.pos);
+            this.initRau = deltaAU.length();
+            this.initVxau = vel.x;
+            this.initVyau = vel.y;
+        } else {
+            this.initRau = 0;
+            this.initVxau = 0;
+            this.initVyau = 0;
+        }
 
     }
 
@@ -88,22 +108,18 @@ public class CelestrialBody extends Entity {
      */
     public void update(ArrayList<CelestrialBody> other) {
 
+        if(bodyType==CELESTRIAL_BODY_TYPE.PLANET){
         updateNetGravitationalForce(other);
         // Acceleration is in AU scale
         acc.x = force.x / mass * PHYSICS_CONSTANT.TIMESTEP;
         acc.y = force.y / mass * PHYSICS_CONSTANT.TIMESTEP;
-
-        //aply acceleration to velocity
+        // aply acceleration to velocity
         vel.x += acc.x;
         vel.y += acc.y;
         // apply velocity to position
         pos.x += vel.x * PHYSICS_CONSTANT.TIMESTEP;
         pos.y += vel.y * PHYSICS_CONSTANT.TIMESTEP;
-
-        // orbit cord update
-        double px = (int) ((pos.x) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
-        double py = (int) ((pos.y) * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
-        orbits.add(new Vector2D(px, py));
+        }
 
     }
 
@@ -125,6 +141,8 @@ public class CelestrialBody extends Entity {
         for (CelestrialBody planet : planets) {
             if (planet == this)
                 continue;
+            if(planet.bodyType == CELESTRIAL_BODY_TYPE.BLACK_HOLE)
+                continue;
             Vector2D f = attraction(planet, pos);
             force.x += f.x;
             force.y += f.y;
@@ -136,7 +154,9 @@ public class CelestrialBody extends Entity {
      * It draws the orbit if there are more than 3 points in the orbit path.
      * It draws the celestrial body as a filled circle at its position.
      * it sets the color for the celestrial body
-     * the x and y coordinates are used as the center of the circle instead of the top-left corner
+     * the x and y coordinates are used as the center of the circle instead of the
+     * top-left corner
+     * 
      * @param g2 The Graphics2D object used for rendering.
      */
     @Override
@@ -144,12 +164,16 @@ public class CelestrialBody extends Entity {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        if (orbits.size() > 3) {
-            // drawOrbit
-            drawOrbit(g2, orbits, 3f);
+        // draw precomputed orbital ellipse if this has a parent
+        if (bodyType == CELESTRIAL_BODY_TYPE.PLANET) {
+            Vector2D sunPx = parent.getPos();
+            OrbitUtils.drawOrbitEllipse(g2,
+                    sunPx.x, sunPx.y,
+                    initRau, initVxau, initVyau,
+                    parent.mass);
         }
 
-        //set the color for of the planet
+        // set the color for of the planet
         g2.setColor(color);
 
         int centerX = (int) (pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE - radius / 2);
@@ -157,37 +181,6 @@ public class CelestrialBody extends Entity {
 
         g2.fillOval(centerX, centerY, (int) radius, (int) radius);
 
-    }
-
-    /*
-     * Draws the orbit of the celestrial body as a polyline.
-     * It takes a list of Vector2D points representing the orbit in game coordinates
-     * and draws them as a polyline with the specified thickness.
-     */
-    private void drawOrbit(Graphics2D g2, List<Vector2D> orbitGameCoords, float thickness) {
-
-        // save old stroke
-        Stroke oldStroke = g2.getStroke();
-        // set new thickness
-        g2.setStroke(new BasicStroke(thickness));
-
-        int n = orbitGameCoords.size();
-        int[] xPts = new int[n];
-        int[] yPts = new int[n];
-
-        // build the polygon points, offset by the center
-        for (int i = 0; i < n; i++) {
-            Vector2D p = orbitGameCoords.get(i);
-            xPts[i] = (int) p.x;
-            yPts[i] = (int) p.y;
-        }
-
-        g2.setColor(Color.white);
-        // draw as an open polyline (won’t force a straight line back to the start)
-        g2.drawPolyline(xPts, yPts, n);
-
-        // restore original stroke
-        g2.setStroke(oldStroke);
     }
 
     /**
@@ -221,19 +214,20 @@ public class CelestrialBody extends Entity {
     /*
      * Display the position,radius and mass of the celestrial body
      * in a string format.
+     * 
      * @return A string representation of the celestrial body.
      * This method is useful for debugging and logging purposes.
      */
     @Override
     public String toString() {
-        return "Pos: " + getPos() + " Radius:" + radius + " Mass:" + mass + " Vel: "+getVel() ;
+        return "Pos: " + getPos() + " Radius:" + radius + " Mass:" + mass + " Vel: " + getVel();
     }
 
     /*
      * Get position of the celestrial body in pixel units
      */
     @Override
-    public Vector2D getPos(){
+    public Vector2D getPos() {
         return new Vector2D(pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
     }
 
@@ -248,12 +242,90 @@ public class CelestrialBody extends Entity {
     /*
      * get acceleration of the celestrial body in pixel/s**2.
      */
-    public Vector2D getAcc(){
+    public Vector2D getAcc() {
         return new Vector2D(acc.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, acc.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
     }
 
+    /*
+     * get force of the celestrial body in Newton
+     */
     @Override
     public Vector2D getForce() {
-       return new Vector2D(force.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, force.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+        return new Vector2D(force.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE,
+                force.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
     }
+
+    /**
+     * Utility class for rendering orbital ellipses.
+     */
+    private static class OrbitUtils {
+
+        /**
+         * Draws the orbital ellipse based on initial conditions.
+         * Assumes the central body (focus) is at (sunPxX, sunPxY) in pixel coordinates,
+         * and the orbit starts at perihelion on the positive x-axis relative to the
+         * sun.
+         *
+         * @param g2       Graphics2D context to draw into
+         * @param sunPxX   X-coordinate of the central body (pixels)
+         * @param sunPxY   Y-coordinate of the central body (pixels)
+         * @param initRau  Initial distance from sun in astronomical units (AU)
+         * @param initVxau Initial velocity X-component (per AU unit in AU/s)
+         * @param initVyau Initial velocity Y-component (in AU/s)
+         * @param sunMass  Mass of the central body (kg)
+         */
+        public static void drawOrbitEllipse(Graphics2D g2,
+                double sunPxX, double sunPxY,
+                double initRau,
+                double initVxau, double initVyau,
+                double sunMass) {
+
+            // Standard gravitational parameter μ = G * M
+            double mu = PHYSICS_CONSTANT.G * sunMass;
+            double v2 = initVxau * initVxau + initVyau * initVyau;
+
+            // Specific orbital energy: ε = v²/2 - μ/r
+            double energy = 0.5 * v2 - mu / initRau;
+
+            // Semi-major axis: a = -μ / (2ε)
+            double a = -mu / (2 * energy);
+
+            // Specific angular momentum magnitude: h = |r × v|
+            // If initial position is (r,0), cross product reduces to r * vy
+            double h = Math.abs(initRau * initVyau);
+
+            // Eccentricity: e = sqrt(1 - h²/(a μ))
+            double e = Math.sqrt(1 - (h * h) / (a * mu));
+
+            // Semi-minor axis: b = a * sqrt(1 - e²)
+            double b = a * Math.sqrt(1 - e * e);
+
+            // Focus offset from center: c = a * e
+            double cAu = a * e;
+
+            // Convert to pixels
+            double scale = PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE;
+            int pixA = (int) Math.round(a * scale);
+            int pixB = (int) Math.round(b * scale);
+            int pixOff = (int) Math.round(cAu * scale);
+
+            // Compute ellipse center in pixel space
+            double cx = sunPxX + pixOff;
+            double cy = sunPxY;
+
+            // Bounding rectangle for ellipse
+            int rx = (int) Math.round(cx - pixA);
+            int ry = (int) Math.round(cy - pixB);
+            int w = pixA * 2;
+            int hpx = pixB * 2;
+            Stroke old = g2.getStroke();
+            g2.setStroke(new BasicStroke(5));
+            g2.setColor(Color.WHITE);
+
+            // Draw ellipse
+            g2.drawOval(rx, ry, w, hpx);
+            g2.setStroke(old);
+        }
+    }
+
 }
