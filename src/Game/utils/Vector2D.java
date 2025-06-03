@@ -85,7 +85,7 @@ public class Vector2D {
     public static Vector2D normalize(Vector2D a){
         double len = a.length();
         if(len == 0)
-        return null;
+            return Vector2D.ZERO;
         return new Vector2D(a.x/len, a.y/len);
     }
 
@@ -118,7 +118,4 @@ public class Vector2D {
     public static double dot(Vector2D a, Vector2D b){
         return  a.x * b.x + a.y * b.y;
     }
-
-
-
 }

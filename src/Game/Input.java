@@ -7,7 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 
-/*
+/**
  * Input class handles keyboard and mouse inputs for the game.
  * It implements KeyListener and MouseListener interfaces to capture key presses,
  * mouse clicks, and mouse movements.

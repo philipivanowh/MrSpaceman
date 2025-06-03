@@ -4,7 +4,7 @@ import Game.Constant.PHYSICS_CONSTANT;
 import Game.utils.Vector2D;
 import java.awt.Graphics2D;
 
-/*
+/**
  * Entity class represents a generic entity in the game.
  * It serves as a base class for all game entities, such as celestrial bodies and players.
  * It contains properties like position, velocity, force, width, height, angle, and mass.
@@ -26,7 +26,7 @@ public abstract class Entity {
     protected double angle;
     protected double mass;
 
-    /*
+    /**
      * Constructor for the Entity class.
      * Initializes an entity with a position, width, height, and mass.
      * * @param x The x-coordinate of the entity's position.
@@ -68,7 +68,7 @@ public abstract class Entity {
 
     // Calculate the distance vector between the two objects
     // and its magnitude
-    public Vector2D attraction(CelestrialBody body, Vector2D subject) {
+    public Vector2D attraction(CelestialBody body, Vector2D subject) {
 
         Vector2D delta = Vector2D.subtract(body.pos, subject);
 

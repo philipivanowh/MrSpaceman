@@ -5,13 +5,13 @@ import java.awt.Color;
 
 /*
  * Constant class contains all the constants used in the game   
- * It includes game constants, physics constants, player constants, and celestrial body types.
+ * It includes game constants, physics constants, player constants, and celestial body types.
  * It provides a centralized place to manage these constants for easy access and modification.
  * The constants are organized into nested classes for better structure and readability.
  * The GAME_CONSTANT class contains constants related to the game window size, frame rate, and colors.
  * The PHYSICS_CONSTANT class contains constants related to physics calculations, such as gravitational constant, astronomical unit, and distance scales.
  * The PLAYER_CONST class contains constants related to the player ship's properties, such as speed, size, and rotational dampening.
- * The CELESTRIAL_BODY_TYPE enum defines the types of celestrial bodies in the game, such as sun, planet, moon, and black hole.
+ * The CELESTIAL_BODY_TYPE enum defines the types of celestial bodies in the game, such as sun, planet, moon, and black hole.
  * The ThrustType enum defines the types of thrust available for the player ship, such as center, left, and right.
  * This class is used throughout the game to access these constants without hardcoding values, making it easier to maintain and update the game.
  */
@@ -19,8 +19,8 @@ public class Constant {
 
     public static class GAME_CONSTANT {
         // Window size
-        public static int WINDOW_WIDTH = 1480;
-        public static int WINDOW_HEIGHT = 1080;
+        public static int WINDOW_WIDTH = 1000;
+        public static int WINDOW_HEIGHT = 600;
 
         // Game window size
         public static int GAME_WIDTH = 100000;
@@ -58,7 +58,7 @@ public class Constant {
         public static final double BLACK_HOLE_MASS = 1.5e30;
         public static final int BLACK_HOLE_RADIUS = 13;
         
-        // Each planets's distance to the sun
+        // Each planets distance to the sun
         public static final double EARTH_DISTANCE_TO_SUN_AU = AU;
 
         public static final double MARS_DISTANCE_TO_SUN_AU = 1.524 * AU;
@@ -71,8 +71,8 @@ public class Constant {
 
         public static final Range AMOUNT_OF_ORBIT_RANGE = new Range(3, 4);
 
-        // The radius of the celestrial body in pixels
-        public static final Range CELESTRIAL_BODY_RADIUS_RANGE = new Range(5, 15);
+        // The radius of the celestial body in pixels
+        public static final Range CELESTIAL_BODY_RADIUS_RANGE = new Range(5, 15);
 
         // The distance of the planets from the sun based on its orbit index/
         // The values are in AU scale
@@ -88,8 +88,8 @@ public class Constant {
 
     }
 
-    // The type of celestrial body
-    public enum CELESTRIAL_BODY_TYPE {
+    // The type of celestial body
+    public enum CELESTIAL_BODY_TYPE {
         SUN,
         PLANET,
         MOON,
