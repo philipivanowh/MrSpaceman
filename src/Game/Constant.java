@@ -19,12 +19,19 @@ public class Constant {
 
     public static class GAME_CONSTANT {
         // Window size
-        public static int WINDOW_WIDTH = 1000;
-        public static int WINDOW_HEIGHT = 600;
+        public static int WINDOW_WIDTH = 1080;
+        public static int WINDOW_HEIGHT = 1080;
 
         // Game window size
         public static int GAME_WIDTH = 100000;
         public static int GAME_HEIGHT = 100000;
+
+        //SOLAR SYSTEM GRID
+        public static int SOLAR_SYSTEM_SIZE = 26500; // px
+
+
+        public static int  GAME_WIDTH_GRID = (int)GAME_WIDTH/SOLAR_SYSTEM_SIZE; // number
+        public static int  GAME_HEIGHT_GRID = (int)GAME_HEIGHT/SOLAR_SYSTEM_SIZE; // number
 
         // Frame rate
         public static final int FPS_SET = 60;

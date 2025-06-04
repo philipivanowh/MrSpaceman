@@ -11,7 +11,7 @@ public class FrameAnimation {
     private int index = 0;
     private double timer = 0;
 
-    private ArrayList<BufferedImage> frames = new ArrayList<BufferedImage>();
+    private final ArrayList<BufferedImage> frames = new ArrayList<BufferedImage>();
     final private double secondsPerFrame;
     final private boolean singleShot;
 
@@ -21,22 +21,22 @@ public class FrameAnimation {
     }
 
     public BufferedImage getFrame() {
-        return frames.get(index);
+        return this.frames.get(this.index);
     }
 
     public void tick(double dt) {
-        if(singleShot && isFinished())
+        if(this.singleShot && this.isFinished())
             return;
 
-        timer += dt;
-        if(timer >= secondsPerFrame / 1000) {
-            timer = 0;
-            index = (index + 1) % frames.size();
+        this.timer += dt;
+        if(this.timer >= this.secondsPerFrame) {
+            this.timer = 0;
+            this.index = (this.index + 1) % this.frames.size();
         }
     }
 
     public boolean isFinished() {
-        return index == frames.size() - 1;
+        return this.index == this.frames.size() - 1;
     }
 
     public static BufferedImage scaleImage(BufferedImage image, double factor) {
@@ -50,15 +50,15 @@ public class FrameAnimation {
         return scaled;
     }
 
-    public void loadFrames(String[] filePaths) {
+    public void loadFrames(String[] filePaths, double scaleFactor) {
         try {
             for (String filePath : filePaths) {
                 File imageFile = new File(filePath);
-                frames.add(ImageIO.read(imageFile));
+                this.frames.add(FrameAnimation.scaleImage(ImageIO.read(imageFile), scaleFactor));
             } 
         }
         catch (IOException e) {
-            System.out.println(e.toString());
+            System.out.println(e);
         }
     }
 
@@ -68,11 +68,11 @@ public class FrameAnimation {
         try {
             for (File file : dir.listFiles()) {
                 File imageFile = new File(file.getPath());
-                frames.add(FrameAnimation.scaleImage(ImageIO.read(imageFile), scaleFactor));
+                this.frames.add(FrameAnimation.scaleImage(ImageIO.read(imageFile), scaleFactor));
             }
         }
         catch (IOException e) {
-            System.out.println(e.toString());
+            System.out.println(e);
         }
     }
 }

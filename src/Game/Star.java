@@ -12,7 +12,7 @@ public class Star extends Entity{
 
         final float depth;
         Star(double x, double y, float depth) {
-            super(x,y,1,1,0);
+            super(x,y,0);
             this.depth = depth;
         }
         @Override

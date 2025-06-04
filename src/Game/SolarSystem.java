@@ -53,7 +53,7 @@ public class SolarSystem {
         this.generateSolarSystem(this.root);
 
         //Determining if creating a black hole in the solar system or not
-        int chance = (int)generateRandomWithSteps(0, 2, 1);
+        int chance = (int)generateRandomWithSteps(0, 1, 1);
         if(chance == 0) {
             double distanceToSun = PHYSICS_CONSTANT.AU * generateRandomWithSteps(PHYSICS_CONSTANT.BLACK_DISTANCE_TO_SUN_AU.getMin(), PHYSICS_CONSTANT.BLACK_DISTANCE_TO_SUN_AU.getMax(), .1);
             double angle = generateRandomWithSteps(0, 2*Math.PI, .1);
@@ -239,6 +239,13 @@ public class SolarSystem {
      */
     public CelestialBody getRoot() {
         return this.root;
+    }
+
+    /*
+     * Returns the pixel coordinates of the solar system's center.
+     */
+    public String toString(){
+        return "Position of the solar system: " + this.root.pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE+ ", " + this.root.pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE;
     }
 
 }

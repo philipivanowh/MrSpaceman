@@ -66,7 +66,7 @@ public class CelestialBody extends Entity {
      */
     public CelestialBody(double x, double y, double radius, double mass, CELESTIAL_BODY_TYPE bodyType, Color color,
                          CelestialBody parent) {
-        super(x, y, radius * 2, radius * 2, mass);
+        super(x, y, mass);
         this.radius = radius;
         this.bodyType = bodyType;
 
@@ -218,7 +218,7 @@ public class CelestialBody extends Entity {
      */
     @Override
     public Vector2D getPos() {
-        return new Vector2D(this.pos.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, this.pos.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+        return Vector2D.multiply(this.pos, PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
     }
 
     /**
@@ -226,14 +226,14 @@ public class CelestialBody extends Entity {
      */
     @Override
     public Vector2D getVel() {
-        return new Vector2D(this.vel.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, this.vel.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+        return Vector2D.multiply(this.vel, PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
     }
 
     /**
      * get acceleration of the celestial body in pixel/s**2.
      */
     public Vector2D getAcc() {
-        return new Vector2D(this.acc.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE, this.acc.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+        return Vector2D.multiply(this.acc, PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
     }
 
     /**
@@ -241,8 +241,7 @@ public class CelestialBody extends Entity {
      */
     @Override
     public Vector2D getForce() {
-        return new Vector2D(this.force.x * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE,
-                this.force.y * PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
+        return Vector2D.multiply(this.force, PHYSICS_CONSTANT.AU_TO_PIXELS_SCALE);
     }
 
     /**

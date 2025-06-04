@@ -24,44 +24,54 @@ public class Vector2D {
 
     // Multiply the vector
     public Vector2D multiply(double factor) {
-        x *= factor;
-        y *= factor;
+        this.x *= factor;
+        this.y *= factor;
         return this;
     }
 
     // Divide the vector
     public void divide(double factor) {
-        x /= factor;
-        y /= factor;
+        this.x /= factor;
+        this.y /= factor;
+    }
+
+    public void add(Vector2D b) {
+        this.x += b.x;
+        this.y += b.y;
+    }
+
+    public void subtract(Vector2D b) {
+        this.x -= b.x;
+        this.y -= b.y;
     }
 
     // Calculate the length of the vector
     public double length() {
-        return Math.sqrt(x * x + y * y);
+        return Math.sqrt(this.x * this.x + this.y * this.y);
     }
 
     // Returns the x and y component of the vector
     @Override
     public String toString() {
-        return "[ " + x + "," + y + "]";
+        return "[ " + this.x + "," + this.y + "]";
     }
 
     // Return the angle of the vector;
     public double getAngle() {
-        return Math.atan2(y, x);
+        return Math.atan2(this.y, this.x);
     }
 
     // Normalize the vector
     public void normalize() {
-        double len = length();
+        double len = this.length();
         if (len != 0) {
-            x /= len;
-            y /= len;
+            this.x /= len;
+            this.y /= len;
         }
     }
 
-       public Vector2D perpendicular() {
-        return new Vector2D(-y, x);
+    public Vector2D perpendicular() {
+        return new Vector2D(-this.y, this.x);
     }
 
      /**
@@ -70,8 +80,8 @@ public class Vector2D {
      */
     public static Vector2D upFromAngle(double angle) {
         return new Vector2D(
-            (double)-Math.sin(angle),
-            (double) Math.cos(angle)
+                -Math.sin(angle),
+                Math.cos(angle)
         );
     }
 
@@ -89,16 +99,6 @@ public class Vector2D {
         return new Vector2D(a.x/len, a.y/len);
     }
 
-    // Static method: subtract vector b from vector a
-    public static Vector2D subtract(Vector2D a, Vector2D b) {
-        return new Vector2D(a.x - b.x, a.y - b.y);
-    }
-
-    // Static method: add vector a and vector b
-    public static Vector2D add(Vector2D a, Vector2D b) {
-        return new Vector2D(a.x + b.x, a.y + b.y);
-    }
-
     public static Vector2D multiply(Vector2D a, double b) {
 
         return new Vector2D(a.x * b, a.y * b);
@@ -111,11 +111,19 @@ public class Vector2D {
         return new Vector2D(a.x / b, a.y / b);
     }
 
+    public static Vector2D add(Vector2D a, Vector2D b) {
+        return new Vector2D(a.x + b.x, a.y + b.y);
+    }
+
+    public static Vector2D subtract(Vector2D a, Vector2D b) {
+        return new Vector2D(a.x - b.x, a.y - b.y);
+    }
+
     public static Vector2D zero() {
         return new Vector2D(0, 0);
     }
 
-    public static double dot(Vector2D a, Vector2D b){
+    public static double dot(Vector2D a, Vector2D b) {
         return  a.x * b.x + a.y * b.y;
     }
 }

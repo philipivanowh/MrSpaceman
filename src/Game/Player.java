@@ -50,9 +50,9 @@ public class Player extends Entity {
      * @param y The y-coordinate of the player's position.
      */
     public Player(double x, double y) {
-        super(x, y, PLAYER_CONST.SHIP_W, PLAYER_CONST.SHIP_H, 1e10);
+        super(x, y, 1e10);
         this.idleAnimation = new FrameAnimation(0.1f, false);
-        this.idleAnimation.loadFrames(new String[] { "Images/rocket.png" });
+        this.idleAnimation.loadFrames(new String[] { "Images/rocket.png" }, 1);
         this.currAnimation = this.idleAnimation;
     }
 
@@ -70,7 +70,7 @@ public class Player extends Entity {
         }
     }
 
-    /**
+    /*
      * Always apply gravity (converted to px/s²) before checking collisions.
      */
     private void updateGravity() {
@@ -315,7 +315,7 @@ public class Player extends Entity {
         this.vel.y = Math.abs(this.vel.y) > 0.1 ? this.vel.y * f : 0;
     }
 
-        /**
+    /**
      * Get position of the player ship in pixel units
      */
     @Override
@@ -323,7 +323,7 @@ public class Player extends Entity {
         return this.pos;
     }
 
-       /**
+    /**
      * get velocity of the player ship in pixel/s.
      */
     @Override
