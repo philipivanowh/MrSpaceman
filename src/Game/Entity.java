@@ -20,8 +20,6 @@ public abstract class Entity {
     protected Vector2D vel = new Vector2D();
     protected Vector2D acc = new Vector2D();
     protected Vector2D force = new Vector2D();
-    protected double width;
-    protected double height;
 
     protected double angle;
     protected double mass;

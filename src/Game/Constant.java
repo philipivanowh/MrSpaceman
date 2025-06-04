@@ -18,11 +18,42 @@ import java.awt.Color;
 public class Constant {
 
     //UI
-    public static class UI {
-		public static class Buttons {
-			public static final int B_WIDTH = 140;
-			public static final int B_HEIGHT = 56;
+    public static class MENU {
+        //Buttons
+		public static class BT {
+			public static final int MENU_BUTTON_WIDTH = 200;
+			public static final int MENU_BUTTON_HEIGHT = 50;
+            public static final int MENU_CENTER_X = GAME_CONSTANT.WINDOW_WIDTH / 2 - 100;
+
+            //Buttons
+            public static final int playButtonY = 150;
+
+            public static final int instructionButtonY = 250;
+
+            public static final int quitButtonY = 350;
+
+
+
+            public static final int settingsButtonX = GAME_CONSTANT.WINDOW_WIDTH / 2 + 150;
+            public static final int settingsButtonY = 370;
+
+            public static final int settingsButtonWidth = 50;
+            public static final int settingsButtonHeight = 50; 
 		}
+
+        public static class BG{
+            //SUN
+            public static final int SUN_RADIUS = 200;
+            public static final int SUN_X = GAME_CONSTANT.WINDOW_WIDTH / 2 - 100;
+            public static final int SUN_Y = 500;
+            public static final Color SUN_COLOR = new Color(255, 204, 0); // Orange color for the sun
+
+            public static final Color HIGHLIGHT_SUN_COLOR = new Color(255, 254, 0); // Orange color for the sun
+
+            //Astroid
+            public static final int ASTROID_RADIUS = 30;
+            public static final Color ASTROID_COLOR = new Color(128, 128, 128); // Gray color for asteroids
+        }
 	}
 
     public static class GAME_CONSTANT {

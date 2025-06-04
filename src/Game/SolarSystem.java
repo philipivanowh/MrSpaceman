@@ -62,7 +62,6 @@ public class SolarSystem {
 
             this.blackHole = new CelestialBody(blackHoleX+ this.root.pos.x, blackHoleY+ this.root.pos.y, PHYSICS_CONSTANT.BLACK_HOLE_RADIUS* this.EXP_SCALE, PHYSICS_CONSTANT.BLACK_HOLE_MASS, CELESTIAL_BODY_TYPE.BLACK_HOLE, Color.black, this.blackHole);
             this.bodies.add(this.blackHole);
-            System.out.println(this.blackHole.getPos());
         }
     }
 

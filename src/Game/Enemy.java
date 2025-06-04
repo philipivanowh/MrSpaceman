@@ -16,12 +16,12 @@ public class Enemy extends Entity {
     public Enemy(double x, double y, double size) {
         super(x, y, 1e10);
         this.size = size;
-        this.idleAnimation = new FrameAnimation(-1, false);
-        this.idleAnimation.loadFrames(new String[] { "Images/Enemy0.png" }, 1);
+        this.idleAnimation = new FrameAnimation(0.8, false);
+        this.idleAnimation.loadFramesFromPath("Images/Enemy Idle", 1);
 
-        this.deathAnimation = new FrameAnimation(0.5f, false);
+        this.deathAnimation = new FrameAnimation(0.5, false);
         this.deathAnimation.loadFramesFromPath("Images/Enemy Death", 1);
-        this.currAnimation = this.deathAnimation;
+        this.currAnimation = this.idleAnimation;
 
     }
     @Override
@@ -35,12 +35,14 @@ public class Enemy extends Entity {
         g2.setTransform(old);
     }
 
-    public void follow(Vector2D target) {
-        Vector2D diff = Vector2D.subtract(target, this.pos);
+    public void followAndAttack(Player player) {
+        Vector2D diff = Vector2D.subtract(player.pos, this.pos);
 
         // if the enemy is close to the target
-        if(this.collide(target))
+        if(diff.length() < this.size * 20) {
+//            player.health -= 1;
             return;
+        }
 
         diff.normalize();
         diff.multiply(60 / (this.size * 0.5));
@@ -49,20 +51,14 @@ public class Enemy extends Entity {
         this.angle = diff.getAngle();
     }
 
-    public boolean collide(Vector2D target) {
-        Vector2D diff = Vector2D.subtract(target, this.pos);
-        return diff.length() < this.size * 20;
-    }
-
     public void update(double dt) {
         this.currAnimation.tick(dt);
 
+        // decay acceleration
         this.acc.multiply(0.9);
 
-        // apply acceleration to velocity
+        // apply acceleration and velocity
         this.vel.add(Vector2D.multiply(this.acc, dt));
-
-        // apply velocity to position
         this.pos.add(Vector2D.multiply(this.vel, dt));
     }
 

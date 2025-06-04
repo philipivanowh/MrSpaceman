@@ -6,7 +6,7 @@ import Game.Constant.PLAYER_CONST;
 import Game.Constant.ThrustType;
 import Game.utils.FrameAnimation;
 import Game.utils.Vector2D;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class Player extends Entity {
     private CelestialBody collidingBody;
 
     // gravitational strength adjuster applied for smoother gameplay
-    private final double GravityStrengthModifier = 11;
+    private final double GravityStrengthModifier = 11 * 5e1;
     private final double PlanetGravityStrengthModifier = this.GravityStrengthModifier * 3.5;
     private final double BlackHoleGravityStrengthModifier = this.PlanetGravityStrengthModifier * 2;
 
@@ -42,6 +42,11 @@ public class Player extends Entity {
     private double stuckAngle = 0; // angle relative to planet center at landing
     private double stuckDistance = 0; // combined radius distance
 
+    private double health = 100;
+    private double maxHealth = 100;
+
+    private int width = PLAYER_CONST.SHIP_W;
+    private int height = PLAYER_CONST.SHIP_H;
     /**
      * Constructor for the Player class.
      * Initializes the player at a given position with a default size and mass.
@@ -73,14 +78,12 @@ public class Player extends Entity {
     /*
      * Always apply gravity (converted to px/s²) before checking collisions.
      */
-    private void updateGravity() {
-        this.updateNetGravitationalForce(Orbitor.currentSolarSystem.getCelestrialBodies());
-        this.acc.x = (this.force.x / this.mass);
-        this.acc.y = (this.force.y / this.mass);
+    private void updateGravity(SolarSystem currentSolarSystem) {
+        this.updateNetGravitationalForce(currentSolarSystem.getCelestrialBodies());
+        this.acc = Vector2D.divide(this.force, this.mass);
     }
 
-    public void update(double dt) {
-
+    public void update(SolarSystem currentSolarSystem, double dt) {
         // update the player's particle
         this.updateParticles();
 
@@ -98,7 +101,8 @@ public class Player extends Entity {
         }
 
         // detect landing
-        CelestialBody land = this.checkCollisionWithPlanets(Orbitor.currentSolarSystem);
+        CelestialBody land = this.checkCollisionWithPlanets(currentSolarSystem);
+
         if (land != null && !Input.isThrusting()) {
             // stick
             this.stuckBody = land;
@@ -114,7 +118,6 @@ public class Player extends Entity {
 
         // if thrusting while stuck, release
         if (this.stuckBody != null && Input.isThrusting()) {
-
             Vector2D center = this.stuckBody.getPos();
             double px = center.x + Math.cos(this.stuckAngle) * this.stuckDistance;
             double py = center.y + Math.sin(this.stuckAngle) * this.stuckDistance;
@@ -124,14 +127,14 @@ public class Player extends Entity {
             diff.normalize();
             diff.multiply(this.getAcc().length());
 
-            this.vel.x = Math.cos(this.angle) * PLAYER_CONST.SHIP_SPEED * dt + 5*diff.x;
-            this.vel.y = Math.sin(this.angle) * PLAYER_CONST.SHIP_SPEED * dt + 5*diff.y;
+            this.vel.x = Math.cos(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
+            this.vel.y = Math.sin(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
             this.stuckBody = null;
         }
 
         // ---Free-flight state---
         // update the gravitational force
-        this.updateGravity();
+        this.updateGravity(currentSolarSystem);
 
         // Rotation
         this.applyRotation(dt);
@@ -140,24 +143,19 @@ public class Player extends Entity {
         this.handleThrust(dt);
 
         // velocity decay
-//        this.acc.multiply(Math.signum(-Vector2D.dot(this.acc, this.vel)) * 0.05);
         this.velocityDecay(dt);
-        // apply acceleration to velocity
-        this.vel.x += this.acc.x;
-        this.vel.y += this.acc.y;
 
-        // apply velocity to position
-
-        this.pos.x += this.vel.x * dt;
-        this.pos.y += this.vel.y * dt;
+        // apply acceleration and velocity
+        this.vel.add(Vector2D.multiply(this.acc, dt));
+        this.pos.add(Vector2D.multiply(this.vel, dt));
 
         if (Input.isThrusting()) {
-            CelestialBody collided = this.checkCollisionWithPlanets(Orbitor.currentSolarSystem);
+            CelestialBody collided = this.checkCollisionWithPlanets(currentSolarSystem);
             if (collided != null) {
                 Vector2D center = collided.getPos();
                 Vector2D off = Vector2D.subtract(this.pos, center);
                 off.normalize();
-                double minDist = (this.width /5 + collided.width/4);
+                double minDist = (this.width/5 + collided.radius / 2);
                 this.pos.x = center.x + off.x * minDist;
                 this.pos.y = center.y + off.y * minDist;
             }
@@ -211,15 +209,15 @@ public class Player extends Entity {
         this.force.x = this.force.y = 0;
         for (CelestialBody body : bodies) {
             Vector2D g = this.attraction(body, Vector2D.multiply(this.pos, PHYSICS_CONSTANT.PIXELS_TO_AU_SCALE));
-            if (body.bodyType == CELESTIAL_BODY_TYPE.SUN) {
+
+            if (body.bodyType == CELESTIAL_BODY_TYPE.SUN)
                 g.multiply(this.GravityStrengthModifier);
-            } else if (body.bodyType == CELESTIAL_BODY_TYPE.PLANET) {
+            else if (body.bodyType == CELESTIAL_BODY_TYPE.PLANET)
                 g.multiply(this.PlanetGravityStrengthModifier);
-            } else if(body.bodyType == CELESTIAL_BODY_TYPE.BLACK_HOLE){
+            else if(body.bodyType == CELESTIAL_BODY_TYPE.BLACK_HOLE)
                 g.multiply(this.BlackHoleGravityStrengthModifier);
-            }
-            this.force.x += g.x;
-            this.force.y += g.y;
+
+            this.force.add(g);
         }
     }
 
@@ -228,14 +226,12 @@ public class Player extends Entity {
      * If a collision is detected, it returns the colliding planet.
      * Otherwise, it returns null.
      *
-     * @param system The SolarSystem object containing all celestial bodies.
+     * @param currentSolarSystem The SolarSystem object containing all celestial bodies.
      * @return The CelestialBody that the player collides with, or null if no
      *         collision occurs.
      */
-    public CelestialBody checkCollisionWithPlanets(SolarSystem system) {
-   
-        for (CelestialBody body : system.getCelestrialBodies()) {
-
+    public CelestialBody checkCollisionWithPlanets(SolarSystem currentSolarSystem) {
+        for (CelestialBody body : currentSolarSystem.getCelestrialBodies()) {
             if(body.bodyType == Constant.CELESTIAL_BODY_TYPE.BLACK_HOLE)
                 continue;
 
@@ -243,7 +239,8 @@ public class Player extends Entity {
             bodyPosPx.x = (int) bodyPosPx.x;
             bodyPosPx.y = (int) bodyPosPx.y;
             double d = Vector2D.subtract(this.pos, bodyPosPx).length();
-            if (d <= (this.width / 5 + body.width / 4)) {
+
+            if (d < (this.width/5 + body.radius/2)) {
                 return body;
             }
         }
@@ -267,11 +264,22 @@ public class Player extends Entity {
         g2.translate(this.pos.x, this.pos.y);
         g2.rotate(this.angle + Math.PI / 2);
         BufferedImage img = this.currAnimation.getFrame();
+        this.width = img.getWidth();
+        this.height = img.getHeight();
         g2.drawImage(img, -img.getWidth() / 2, -img.getHeight() / 2, null);
         g2.setTransform(old);
+
         for (TrailParticle p : this.particles) {
             p.render(g2);
         }
+    }
+
+    public void renderHealthBar(Graphics2D hud) {
+        hud.setColor(Color.green);
+        hud.fillRect(10, 40, (int)(this.health / this.maxHealth * 300), 20);
+
+        hud.setColor(Color.white);
+        hud.drawRect(10, 40, 300, 20);
     }
 
     /**

@@ -2,13 +2,15 @@ package Game;
 
 import Game.Constant.GAME_CONSTANT;
 import Game.GameState;
+import Game.ui.GameMenu;
+import Game.ui.InstructionMenu;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
-/*
+/**
  * Orbitor class represents the main game panel where the player can navigate through a solar system.
  * It handles the game loop, input, rendering, and updates for the player and solar systems.
  * It extends JPanel and implements Runnable to create a game thread.
@@ -26,13 +28,12 @@ public class Orbitor extends JPanel implements Runnable {
 	final private Player player;
 	final private Camera camera;
 
-	Thread gameThread;
-	ArrayList<SolarSystem> systems = new ArrayList<SolarSystem>();
-
-	public static SolarSystem currentSolarSystem;
+	private Thread gameThread;
+	final private ArrayList<SolarSystem> solarSystems = new ArrayList<SolarSystem>();
 
 	// Game menu
-	private GameMenu gameMenu;
+	final private GameMenu gameMenu;
+	final private InstructionMenu instructionMenu;
 
 	// Number of background stars
 	private static final int STAR_COUNT = 200;
@@ -49,7 +50,7 @@ public class Orbitor extends JPanel implements Runnable {
 			{ 6, 7, 8 }
 	};
 
-	/*
+	/**
 	 * Constructor for the Orbitor class.
 	 * Initializes the player, camera, input handling, and starts the game.
 	 * Preparing the game panel.
@@ -58,10 +59,10 @@ public class Orbitor extends JPanel implements Runnable {
 	 */
 	public Orbitor() {
 
-		this.player = new Player(GAME_CONSTANT.GAME_WIDTH / 2.0 - 500 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2,
-				GAME_CONSTANT.GAME_HEIGHT / 2.0 - 500 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2);
-		this.camera = new Camera(GAME_CONSTANT.GAME_WIDTH / 2.0 - 500 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2,
-				GAME_CONSTANT.GAME_HEIGHT / 2.0 - 500 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2);
+		this.player = new Player(GAME_CONSTANT.GAME_WIDTH / 2.0 - 1000 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2.0,
+				GAME_CONSTANT.GAME_HEIGHT / 2.0 - 1000 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2.0);
+		this.camera = new Camera(GAME_CONSTANT.GAME_WIDTH / 2.0 - 1000 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2.0,
+				GAME_CONSTANT.GAME_HEIGHT / 2.0 - 1000 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2.0);
 		Input.setCamera(this.camera);
 
 		this.setPreferredSize(new Dimension(GAME_CONSTANT.WINDOW_WIDTH, GAME_CONSTANT.WINDOW_HEIGHT));
@@ -85,6 +86,7 @@ public class Orbitor extends JPanel implements Runnable {
 		// Set the initial game state to MENU
 
 		gameMenu = new GameMenu();
+		instructionMenu = new InstructionMenu();
 
 	}
 
@@ -103,30 +105,30 @@ public class Orbitor extends JPanel implements Runnable {
 					this.player.pos.y + rand.nextInt(-1000, 1000), (rand.nextDouble() + 1) * 2.5));
 	}
 
-	/*
+	/**
 	 * Generate a default solar system with a sun and planets.
 	 * This method creates a solar system with a sun at the center and planets
 	 * orbiting around it.
 	 */
 	private void loadSolarSystem() {
 
-		for (int i = 0; i < GAME_CONSTANT.GAME_HEIGHT_GRID; i++) {
-			for (int j = 0; j < GAME_CONSTANT.GAME_WIDTH_GRID; j++) {
-				SolarSystem solar = new SolarSystem(
-						j * GAME_CONSTANT.SOLAR_SYSTEM_SIZE + GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2,
-						i * GAME_CONSTANT.SOLAR_SYSTEM_SIZE + GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2);
+		SolarSystem solar = new SolarSystem((int)(GAME_CONSTANT.GAME_WIDTH / 2.0 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2.0),
+				(int)(GAME_CONSTANT.GAME_HEIGHT / 2.0 - GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2.0));
+		this.solarSystems.add(solar);
 
-				this.systems.add(solar);
-
-			}
-		}
-
-		currentSolarSystem = this.systems.get(4);
-
-		// Create a solar system at the center of the game world
+//		for (int i = 0; i < GAME_CONSTANT.GAME_HEIGHT_GRID; i++) {
+//			for (int j = 0; j < GAME_CONSTANT.GAME_WIDTH_GRID; j++) {
+//				SolarSystem solar = new SolarSystem(
+//						j * GAME_CONSTANT.SOLAR_SYSTEM_SIZE + GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2,
+//						i * GAME_CONSTANT.SOLAR_SYSTEM_SIZE + GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2);
+//
+//				this.solarSystems.add(solar);
+//				System.out.println(solar.getRoot().getPos());
+//			}
+//		}
 	}
 
-	/*
+	/**
 	 * Populate background stars with random positions and depth.
 	 */
 	private void generateStars() {
@@ -139,7 +141,7 @@ public class Orbitor extends JPanel implements Runnable {
 		}
 	}
 
-	/*
+	/**
 	 * This method is the main game loop that runs at a fixed frame rate.
 	 * It calculates the time delta between frames and updates the game state
 	 * accordingly.
@@ -177,7 +179,7 @@ public class Orbitor extends JPanel implements Runnable {
 		}
 	}
 
-	/*
+	/**
 	 * This method updates the game state by following the player with the camera,
 	 * updating the player's position, and updating all solar systems.
 	 * It is called every frame in the game loop.
@@ -185,29 +187,28 @@ public class Orbitor extends JPanel implements Runnable {
 	public void update(double dt) {
 
 		// Update in acoordance to the current game state
-		if(GameState.state == GameState.PLAYING){
-				updateCurrentSolarSystem();
+		if(GameState.state == GameState.PLAYING) {
+			SolarSystem currentSolarSystem = getCurrentSolarSystem();
 
-				this.camera.follow(this.player, dt);
-				this.player.update(dt);
+			this.camera.follow(this.player, dt);
+			this.player.update(currentSolarSystem, dt);
 
-				for (SolarSystem system : this.systems)
-					system.update();
+			for (SolarSystem system : this.solarSystems)
+				system.update();
 
-				for (Enemy enemy : this.enemies) {
-					enemy.follow(player.pos);
-					enemy.update(dt);
-				}
+			for (Enemy enemy : this.enemies) {
+				enemy.followAndAttack(player);
+				enemy.update(dt);
+			}
 				
 			
 		}
 		else if(GameState.state == GameState.MENU){
 
 		}
-
 	}
 
-	/*
+	/**
 	 * This method is called to paint the game components on the screen.
 	 * It uses a Graphics2D object to render the player and solar system.
 	 * It also draws a fixed HUD overlay with player information.
@@ -218,48 +219,52 @@ public class Orbitor extends JPanel implements Runnable {
 		this.render(g);
 	}
 
-	/*
+	/**
 	 * This method renders the game components on the screen.
 	 */
 	public void render(Graphics g) {
+		if(GameState.state == GameState.PLAYING) {
+			Graphics2D g2 = (Graphics2D) g.create();
+			g2.translate(-this.camera.getX(), -this.camera.getY());
 
-		if(GameState.state == GameState.PLAYING){
-				Graphics2D g2 = (Graphics2D) g.create();
+			// draw all orbits
+			g2.setColor(new Color(255, 255, 255, 64)); // translucent white
 
-				g2.translate(-this.camera.getX(), -this.camera.getY());
+			// draw stars
+			this.drawBackgroundStars(g);
 
-				// FIRST draw all orbits
-				g2.setColor(new Color(255, 255, 255, 64)); // translucent white
+			// draw the fixed planet system
+			this.drawSolarSystems(g2);
 
-				// draw stars
-				this.drawBackgroundStars(g);
-				// draw the fixed planet system
-				this.drawSolarSystem(g2);
+			this.player.render(g2);
 
-				this.player.render(g2);
+			for (Enemy enemy : this.enemies)
+				enemy.render(g2);
 
-				for (Enemy enemy : this.enemies)
-					enemy.render(g2);
+			/* ---------- 2) fixed HUD overlay ---------- */
+			Graphics2D hud = (Graphics2D) g; // uses panel coords (0,0 at top-left)
+			hud.setColor(Color.WHITE);
+			hud.setFont(new Font("Consolas", Font.PLAIN, 14));
 
-				/* ---------- 2) fixed HUD overlay ---------- */
-				Graphics2D hud = (Graphics2D) g; // uses panel coords (0,0 at top-left)
-				hud.setColor(Color.WHITE);
-				hud.setFont(new Font("Consolas", Font.PLAIN, 14));
+			String msg = String.format("x: %.0f   y: %.0f   θ: %.0f° vx: %.0f vy: %.0f",
+					this.player.pos.x, this.player.pos.y, this.player.angle, this.player.vel.x, this.player.vel.y);
+			hud.drawString(msg, 10, 20);
 
-				String msg = String.format("x: %.0f   y: %.0f   θ: %.0f° vx: %.0f vy: %.0f",
-						this.player.pos.x, this.player.pos.y, this.player.angle, this.player.vel.x, this.player.vel.y);
-				hud.drawString(msg, 10, 20);
+			this.player.renderHealthBar(hud);
 
-				g2.dispose();
+			// dispose of graphics
+			g2.dispose();
 		}
-		else if(GameState.state==GameState.MENU){
-
-				gameMenu.render(g);
+		else if(GameState.state == GameState.MENU) {
+			gameMenu.render(g);
+		}else if (GameState.state == GameState.INSTRUCTION) {
+			//Instruction menu
+			instructionMenu.render(g);
 		}
 		
 	}
 
-	/*
+	/**
 	 * Draw parallax stars behind everything.
 	 */
 	private void drawBackgroundStars(Graphics g) {
@@ -276,20 +281,17 @@ public class Orbitor extends JPanel implements Runnable {
 	}
 
 	// This method draws all solar systems in the game.
-	private void drawSolarSystem(Graphics2D g2d) {
-		for (SolarSystem system : this.systems)
+	private void drawSolarSystems(Graphics2D g2d) {
+		for (SolarSystem system : this.solarSystems)
 			system.render(g2d);
 	}
 
 	// Getter method to retrieve the currentSolarSystem;
-	private void updateCurrentSolarSystem() {
-
+	private SolarSystem getCurrentSolarSystem() {
 		int x = (int) player.pos.x / GAME_CONSTANT.SOLAR_SYSTEM_SIZE;
 		int y = (int) player.pos.y / GAME_CONSTANT.SOLAR_SYSTEM_SIZE;
 
-		int gridIndex = intGrid[y][x];
-
-		currentSolarSystem = this.systems.get(gridIndex);
+		int gridIndex = 0;
+		return this.solarSystems.get(gridIndex);
 	}
-
 }
