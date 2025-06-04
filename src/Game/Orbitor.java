@@ -28,7 +28,13 @@ public class Orbitor extends JPanel implements Runnable {
 	Thread gameThread;
 	ArrayList<SolarSystem> systems = new ArrayList<SolarSystem>();
 
+	//Manage game state
+	GameState currentGameState;
+
 	public static SolarSystem currentSolarSystem;
+
+	//Game menu
+	private GameMenu gameMenu;
 
 	// Number of background stars
 	private static final int STAR_COUNT = 200;
@@ -77,6 +83,12 @@ public class Orbitor extends JPanel implements Runnable {
 		this.StartGame();
 		this.setLayout(null);
 
+		//Initialize the game state
+		// Set the initial game state to MENU
+		currentGameState = GameState.MENU;
+
+		gameMenu = new GameMenu();
+ 
 	}
 
 	private void StartGame() {
@@ -144,19 +156,39 @@ public class Orbitor extends JPanel implements Runnable {
 		double accumulator = 0;
 		double nsPerFrame = nsPerSecond / GAME_CONSTANT.FPS_SET;
 
+		GameState currGameState = GameState.MENU;
+
+		//Game loop
 		while (true) {
+
+
+			
+
 			long now = System.nanoTime();
 			double delta = now - lastTime;
 			lastTime = now;
 			accumulator += delta;
 
+			//Main Game 
 			// only update & repaint when enough time has passed
 			while (accumulator >= nsPerFrame) {
+
+
+				//Menu
+				if(currGameState == GameState.MENU) {
+					gameMenu.render(g)
+				}
+
+				if(currGameState == GameState.PLAYING){
 				double seconds = nsPerFrame / nsPerSecond;
 				this.update(seconds);
 				this.repaint();
+				}
+
 				accumulator -= nsPerFrame;
+
 			}
+		
 		}
 	}
 

@@ -29,7 +29,6 @@ public class Constant {
         //SOLAR SYSTEM GRID
         public static int SOLAR_SYSTEM_SIZE = 26500; // px
 
-
         public static int  GAME_WIDTH_GRID = (int)GAME_WIDTH/SOLAR_SYSTEM_SIZE; // number
         public static int  GAME_HEIGHT_GRID = (int)GAME_HEIGHT/SOLAR_SYSTEM_SIZE; // number
 
