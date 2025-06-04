@@ -54,6 +54,10 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
         return new Vector2D(mousePos.x + camera.getX(), mousePos.y + camera.getY());
     }
 
+    public static boolean mouseIsClicked(){
+        return mouseButtons[MouseEvent.BUTTON1];
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
     }

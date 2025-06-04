@@ -1,6 +1,7 @@
 package Game;
 
 import Game.Constant.GAME_CONSTANT;
+import Game.GameState;
 
 import javax.swing.*;
 import java.awt.*;
@@ -28,12 +29,9 @@ public class Orbitor extends JPanel implements Runnable {
 	Thread gameThread;
 	ArrayList<SolarSystem> systems = new ArrayList<SolarSystem>();
 
-	//Manage game state
-	GameState currentGameState;
-
 	public static SolarSystem currentSolarSystem;
 
-	//Game menu
+	// Game menu
 	private GameMenu gameMenu;
 
 	// Number of background stars
@@ -83,12 +81,11 @@ public class Orbitor extends JPanel implements Runnable {
 		this.StartGame();
 		this.setLayout(null);
 
-		//Initialize the game state
+		// Initialize the game state
 		// Set the initial game state to MENU
-		currentGameState = GameState.MENU;
 
 		gameMenu = new GameMenu();
- 
+
 	}
 
 	private void StartGame() {
@@ -120,7 +117,6 @@ public class Orbitor extends JPanel implements Runnable {
 						i * GAME_CONSTANT.SOLAR_SYSTEM_SIZE + GAME_CONSTANT.SOLAR_SYSTEM_SIZE / 2);
 
 				this.systems.add(solar);
-				System.out.println(solar);
 
 			}
 		}
@@ -158,37 +154,26 @@ public class Orbitor extends JPanel implements Runnable {
 
 		GameState currGameState = GameState.MENU;
 
-		//Game loop
+		// Game loop
 		while (true) {
-
-
-			
 
 			long now = System.nanoTime();
 			double delta = now - lastTime;
 			lastTime = now;
 			accumulator += delta;
 
-			//Main Game 
+			// Main Game
 			// only update & repaint when enough time has passed
 			while (accumulator >= nsPerFrame) {
 
-
-				//Menu
-				if(currGameState == GameState.MENU) {
-					gameMenu.render(g)
-				}
-
-				if(currGameState == GameState.PLAYING){
 				double seconds = nsPerFrame / nsPerSecond;
 				this.update(seconds);
 				this.repaint();
-				}
 
 				accumulator -= nsPerFrame;
 
 			}
-		
+
 		}
 	}
 
@@ -199,17 +184,25 @@ public class Orbitor extends JPanel implements Runnable {
 	 */
 	public void update(double dt) {
 
-		updateCurrentSolarSystem();
+		// Update in acoordance to the current game state
+		if(GameState.state == GameState.PLAYING){
+				updateCurrentSolarSystem();
 
-		this.camera.follow(this.player, dt);
-		this.player.update(dt);
+				this.camera.follow(this.player, dt);
+				this.player.update(dt);
 
-		for (SolarSystem system : this.systems)
-			system.update();
+				for (SolarSystem system : this.systems)
+					system.update();
 
-		for (Enemy enemy : this.enemies) {
-			enemy.follow(player.pos);
-			enemy.update(dt);
+				for (Enemy enemy : this.enemies) {
+					enemy.follow(player.pos);
+					enemy.update(dt);
+				}
+				
+			
+		}
+		else if(GameState.state == GameState.MENU){
+
 		}
 
 	}
@@ -229,33 +222,41 @@ public class Orbitor extends JPanel implements Runnable {
 	 * This method renders the game components on the screen.
 	 */
 	public void render(Graphics g) {
-		Graphics2D g2 = (Graphics2D) g.create();
 
-		g2.translate(-this.camera.getX(), -this.camera.getY());
+		if(GameState.state == GameState.PLAYING){
+				Graphics2D g2 = (Graphics2D) g.create();
 
-		// FIRST draw all orbits
-		g2.setColor(new Color(255, 255, 255, 64)); // translucent white
+				g2.translate(-this.camera.getX(), -this.camera.getY());
 
-		// draw stars
-		this.drawBackgroundStars(g);
-		// draw the fixed planet system
-		this.drawSolarSystem(g2);
+				// FIRST draw all orbits
+				g2.setColor(new Color(255, 255, 255, 64)); // translucent white
 
-		this.player.render(g2);
+				// draw stars
+				this.drawBackgroundStars(g);
+				// draw the fixed planet system
+				this.drawSolarSystem(g2);
 
-		for (Enemy enemy : this.enemies)
-			enemy.render(g2);
+				this.player.render(g2);
 
-		/* ---------- 2) fixed HUD overlay ---------- */
-		Graphics2D hud = (Graphics2D) g; // uses panel coords (0,0 at top-left)
-		hud.setColor(Color.WHITE);
-		hud.setFont(new Font("Consolas", Font.PLAIN, 14));
+				for (Enemy enemy : this.enemies)
+					enemy.render(g2);
 
-		String msg = String.format("x: %.0f   y: %.0f   θ: %.0f° vx: %.0f vy: %.0f",
-				this.player.pos.x, this.player.pos.y, this.player.angle, this.player.vel.x, this.player.vel.y);
-		hud.drawString(msg, 10, 20);
+				/* ---------- 2) fixed HUD overlay ---------- */
+				Graphics2D hud = (Graphics2D) g; // uses panel coords (0,0 at top-left)
+				hud.setColor(Color.WHITE);
+				hud.setFont(new Font("Consolas", Font.PLAIN, 14));
 
-		g2.dispose();
+				String msg = String.format("x: %.0f   y: %.0f   θ: %.0f° vx: %.0f vy: %.0f",
+						this.player.pos.x, this.player.pos.y, this.player.angle, this.player.vel.x, this.player.vel.y);
+				hud.drawString(msg, 10, 20);
+
+				g2.dispose();
+		}
+		else if(GameState.state==GameState.MENU){
+
+				gameMenu.render(g);
+		}
+		
 	}
 
 	/*

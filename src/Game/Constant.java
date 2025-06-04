@@ -17,6 +17,14 @@ import java.awt.Color;
  */
 public class Constant {
 
+    //UI
+    public static class UI {
+		public static class Buttons {
+			public static final int B_WIDTH = 140;
+			public static final int B_HEIGHT = 56;
+		}
+	}
+
     public static class GAME_CONSTANT {
         // Window size
         public static int WINDOW_WIDTH = 1080;

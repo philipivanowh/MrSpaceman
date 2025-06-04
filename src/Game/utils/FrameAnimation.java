@@ -24,6 +24,11 @@ public class FrameAnimation {
         return this.frames.get(this.index);
     }
 
+    public BufferedImage newFrame(){
+        this.index = (this.index + 1) % this.frames.size();
+        return this.frames.get(this.index);
+    }
+
     public void tick(double dt) {
         if(this.singleShot && this.isFinished())
             return;
