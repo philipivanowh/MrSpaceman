@@ -206,6 +206,9 @@ public class Orbitor extends JPanel implements Runnable {
 		else if(GameState.state == GameState.MENU){
 
 		}
+		else if(GameState.state == GameState.QUIT){
+			System.exit(0);
+		}
 	}
 
 	/**

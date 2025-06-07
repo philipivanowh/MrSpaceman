@@ -4,32 +4,41 @@ import Game.Constant.GAME_CONSTANT;
 import Game.Constant.MENU.BG;
 import Game.Constant.MENU.BT;
 import Game.GameState;
-import Game.Input;
 import Game.utils.Vector2D;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 
 public class GameMenu {
 
-    public Rectangle playButton = new Rectangle(BT.MENU_CENTER_X, BT.playButtonY, BT.MENU_BUTTON_WIDTH,
-            BT.MENU_BUTTON_HEIGHT);
+    private MenuButton playButton;
 
-    public Rectangle instructionButton = new Rectangle(BT.MENU_CENTER_X, BT.instructionButtonY, BT.MENU_BUTTON_WIDTH,
-            BT.MENU_BUTTON_HEIGHT);
+    private MenuButton instructionButton;
 
-    public Rectangle quitButton = new Rectangle(BT.MENU_CENTER_X, BT.quitButtonY, BT.MENU_BUTTON_WIDTH,
-            BT.MENU_BUTTON_HEIGHT);
 
-    public Rectangle settingsButton = new Rectangle(BT.settingsButtonX, BT.settingsButtonY, BT.settingsButtonWidth,
-            BT.MENU_BUTTON_HEIGHT);
+    private MenuButton quitButton;
+
+    private MenuButton settingsButton;
 
     float astroidAngle = 0;
     float distanceFromSun = 170;
 
     Vector2D mousePos = new Vector2D();
+
+    /*
+     * This is the constructor for the GameMenu class. It initializes the menu buttons with their respective
+     * game states and positions.
+     * The buttons are positioned based on predefined constants from the BT class.
+     */
+    public GameMenu() {
+        // Initialize buttons with their respective game states
+        playButton = new MenuButton(BT.MENU_CENTER_X, BT.playButtonY, BT.MENU_BUTTON_WIDTH, BT.MENU_BUTTON_HEIGHT, "PLAY",GameState.PLAYING);
+        instructionButton = new MenuButton(BT.MENU_CENTER_X, BT.instructionButtonY, BT.MENU_BUTTON_WIDTH, BT.MENU_BUTTON_HEIGHT, "INSTRUCTION",GameState.INSTRUCTION);
+        quitButton = new MenuButton(BT.MENU_CENTER_X, BT.quitButtonY, BT.MENU_BUTTON_WIDTH, BT.MENU_BUTTON_HEIGHT, "QUIT",GameState.QUIT);
+        settingsButton = new MenuButton(BT.settingsButtonX, BT.settingsButtonY, BT.settingsButtonWidth, BT.settingsButtonHeight, "SETTINGS",GameState.SETTINGS);
+
+    }
 
     public void render(Graphics g) {
         Graphics2D g2 = (Graphics2D) g;
@@ -39,27 +48,34 @@ public class GameMenu {
         g.setColor(Color.WHITE);
         g.drawString("Orbitor", GAME_CONSTANT.WINDOW_WIDTH / 2 - 100, 100);
 
-        Font fn1 = new Font("Arial", Font.BOLD, 20);
-        g.setFont(fn1);
-        g.drawString("Play", playButton.x + 75, playButton.y + 30);
-        g2.draw(playButton);
-        g.drawString("Instruction", instructionButton.x + 75, instructionButton.y + 30);
-        g2.draw(instructionButton);
-        g.drawString("Setting", settingsButton.x + 75, settingsButton.y + 30);
-        g2.draw(settingsButton);
-        g.drawString("Quit", quitButton.x + 75, quitButton.y + 30);
-        g2.draw(quitButton);
 
-        // Update mouse position
-        mousePos = Input.getMouseRelativeToScreen();
+        //Update the button status 
+        playButton.render(g2);
+        playButton.handleInput();
 
-        handleButtons();
+        instructionButton.render(g2);
+        instructionButton.handleInput();
 
+        quitButton.render(g2);
+        quitButton.handleInput();
+
+        settingsButton.render(g2);
+        settingsButton.handleInput();
+        
         // Draw the background
 
-        // Draw the sun
+        drawBacground(g2);
 
-        Vector2D delta = Vector2D.subtract(mousePos, new Vector2D(BG.SUN_X, BG.SUN_Y));
+    
+
+
+    }
+
+    /*
+     * This method draws the background of the game menu, including the sun and an asteroid orbiting around it.
+     */
+    private void drawBacground(Graphics2D g2) {
+            Vector2D delta = Vector2D.subtract(mousePos, new Vector2D(BG.SUN_X, BG.SUN_Y));
         if (delta.length() <= BG.SUN_RADIUS + 2) {
             g2.setColor(BG.HIGHLIGHT_SUN_COLOR);
             g2.fillOval(BG.SUN_X - 12, BG.SUN_Y - 12, BG.SUN_RADIUS + 25, BG.SUN_RADIUS + 25);
@@ -82,27 +98,6 @@ public class GameMenu {
             astroidAngle = 0; // Reset angle to keep it within bounds
         }
 
-    }
-
-    public void handleButtons() {
-
-        if (mousePos.x >= GAME_CONSTANT.WINDOW_WIDTH / 2 - 100 && mousePos.x <= GAME_CONSTANT.WINDOW_WIDTH / 2 + 100
-                && Input.mouseIsClicked()) {
-
-            // Play Button
-            if (mousePos.y >= BT.playButtonY && mousePos.y <= BT.playButtonY + BT.MENU_BUTTON_HEIGHT) {
-                GameState.state = GameState.PLAYING;
-            }
-            // Instructions
-            if (mousePos.y >= BT.instructionButtonY && mousePos.y <= BT.instructionButtonY + BT.MENU_BUTTON_HEIGHT) {
-                GameState.state = GameState.INSTRUCTION;
-            }
-            // Settings
-            if (mousePos.y >= BT.settingsButtonY && mousePos.y <= BT.settingsButtonY + BT.settingsButtonHeight) {
-                GameState.state = GameState.SETTINGS;
-            }
-
-        }
     }
 
 }
