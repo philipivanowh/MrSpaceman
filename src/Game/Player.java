@@ -83,9 +83,16 @@ public class Player extends Entity {
         this.acc = Vector2D.divide(this.force, this.mass);
     }
 
-    public void update(SolarSystem currentSolarSystem, double dt) {
+    private void updateEnemyCollision(ArrayList<Enemy> enemies) {
+        for(Enemy enemy : enemies) {
+
+        }
+    }
+
+    public void update(ArrayList<Enemy> enemies, SolarSystem currentSolarSystem, double dt) {
         // update the player's particle
         this.updateParticles();
+        this.updateEnemyCollision(enemies);
 
         // if currently stuck to a planet
         if (this.stuckBody != null && !Input.isThrusting()) {
@@ -101,40 +108,42 @@ public class Player extends Entity {
         }
 
         // detect landing
-        CelestialBody land = this.checkCollisionWithPlanets(currentSolarSystem);
+        if (currentSolarSystem != null) {
+            CelestialBody land = this.checkCollisionWithPlanets(currentSolarSystem);
 
-        if (land != null && !Input.isThrusting()) {
-            // stick
-            this.stuckBody = land;
-            Vector2D cp = land.getPos();
-            // vector from planet center to player
-            double dx = this.pos.x - cp.x;
-            double dy = this.pos.y - cp.y;
-            this.stuckAngle = Math.atan2(dy, dx);
-            this.stuckDistance = Math.hypot(dx, dy);
-            this.vel.x = this.vel.y = 0;
-            return;
+            if (land != null && !Input.isThrusting()) {
+                // stick
+                this.stuckBody = land;
+                Vector2D cp = land.getPos();
+                // vector from planet center to player
+                double dx = this.pos.x - cp.x;
+                double dy = this.pos.y - cp.y;
+                this.stuckAngle = Math.atan2(dy, dx);
+                this.stuckDistance = Math.hypot(dx, dy);
+                this.vel.x = this.vel.y = 0;
+                return;
+            }
+
+            // if thrusting while stuck, release
+            if (this.stuckBody != null && Input.isThrusting()) {
+                Vector2D center = this.stuckBody.getPos();
+                double px = center.x + Math.cos(this.stuckAngle) * this.stuckDistance;
+                double py = center.y + Math.sin(this.stuckAngle) * this.stuckDistance;
+                this.pos.x = px;
+                this.pos.y = py;
+                Vector2D diff = Vector2D.subtract(this.pos, this.stuckBody.getPos());
+                diff.normalize();
+                diff.multiply(this.getAcc().length());
+
+                this.vel.x = Math.cos(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
+                this.vel.y = Math.sin(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
+                this.stuckBody = null;
+            }
+
+            // ---Free-flight state---
+            // update the gravitational force
+            this.updateGravity(currentSolarSystem);
         }
-
-        // if thrusting while stuck, release
-        if (this.stuckBody != null && Input.isThrusting()) {
-            Vector2D center = this.stuckBody.getPos();
-            double px = center.x + Math.cos(this.stuckAngle) * this.stuckDistance;
-            double py = center.y + Math.sin(this.stuckAngle) * this.stuckDistance;
-            this.pos.x = px;
-            this.pos.y = py;
-            Vector2D diff = Vector2D.subtract(this.pos, this.stuckBody.getPos());
-            diff.normalize();
-            diff.multiply(this.getAcc().length());
-
-            this.vel.x = Math.cos(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
-            this.vel.y = Math.sin(this.angle) * PLAYER_CONST.SHIP_SPEED * dt;
-            this.stuckBody = null;
-        }
-
-        // ---Free-flight state---
-        // update the gravitational force
-        this.updateGravity(currentSolarSystem);
 
         // Rotation
         this.applyRotation(dt);
@@ -149,7 +158,7 @@ public class Player extends Entity {
         this.vel.add(Vector2D.multiply(this.acc, dt));
         this.pos.add(Vector2D.multiply(this.vel, dt));
 
-        if (Input.isThrusting()) {
+        if (Input.isThrusting() && currentSolarSystem != null) {
             CelestialBody collided = this.checkCollisionWithPlanets(currentSolarSystem);
             if (collided != null) {
                 Vector2D center = collided.getPos();
@@ -167,7 +176,7 @@ public class Player extends Entity {
      * Apply rotation to the player
      */
     public void applyRotation(double dt) {
-        Vector2D diff = Vector2D.subtract(Input.getMouseRelativeToWorld(), this.pos);
+        Vector2D diff = Vector2D.subtract(Input.getMouseRelativeToScreen(), new Vector2D(Constant.GAME_CONSTANT.WINDOW_WIDTH / 2.0, Constant.GAME_CONSTANT.WINDOW_HEIGHT / 2.0));
         double targetAngle = diff.getAngle();
         double err = this.clampAngle(targetAngle - this.angle);
         if (Math.abs(err) > PLAYER_CONST.ANGLE_DEADZONE) {

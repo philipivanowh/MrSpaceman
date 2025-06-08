@@ -6,8 +6,12 @@ public class Range {
     private double min;
 
     public Range(double min, double max) {
-        this.max = min;
-        this.min = max;
+        if (min>max) {
+            System.err.println("Your Min is larger than your max");
+            System.exit(0);
+        }
+        this.max = max;
+        this.min = min;
     }
 
     public boolean contatains(double number) {

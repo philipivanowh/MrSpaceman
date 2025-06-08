@@ -38,9 +38,9 @@ public class TrailParticle extends Entity {
     private static final double DECAY = 0.9f;
     private static final double EXPAND = 1.04f;
 
-    private static final Range CENTER_THRUST_RADIUS_RANGE = new Range(5, 8);
+    private static final Range CENTER_THRUST_RADIUS_RANGE = new Range(4, 5);
 
-    private static final Range SIDE_THRUST_RADIUS_RANGE = new Range(4, 7);
+    private static final Range SIDE_THRUST_RADIUS_RANGE = new Range(2, 3);
 
     private static Range CURRENT_RANGE;
 

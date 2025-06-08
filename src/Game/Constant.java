@@ -1,6 +1,7 @@
 package Game;
 
 import Game.utils.Range;
+import Game.utils.Vector2D;
 import java.awt.Color;
 
 /*
@@ -74,6 +75,11 @@ public class Constant {
         // Frame rate
         public static final int FPS_SET = 60;
         public static final double G_Constant = 0;
+
+        //Zoom
+        public static final Range scaleRange = new Range(0.05,1.5);
+        public static final double defaultScale = 1.0;
+        public static final Vector2D scaleScrollRateOfChange = new Vector2D(0.02,0.02);
 
         // Colors
         public static Color SPACE_COLOR = new Color(25, 26, 28);

@@ -1,6 +1,6 @@
 package Game.utils;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -55,29 +55,28 @@ public class FrameAnimation {
         return scaled;
     }
 
-    public void loadFrames(String[] filePaths, double scaleFactor) {
+    public static BufferedImage loadImage(String filePath, double scaleFactor) {
         try {
-            for (String filePath : filePaths) {
-                File imageFile = new File(filePath);
-                this.frames.add(FrameAnimation.scaleImage(ImageIO.read(imageFile), scaleFactor));
-            } 
+            File imageFile = new File(filePath);
+            return FrameAnimation.scaleImage(ImageIO.read(imageFile), scaleFactor);
         }
         catch (IOException e) {
-            System.out.println(e);
+            System.out.println(filePath + ": " + e);
         }
+
+        return null;
+    }
+
+    public void loadFrames(String[] filePaths, double scaleFactor) {
+        for (String filePath : filePaths)
+            this.frames.add(FrameAnimation.loadImage(filePath, scaleFactor));
+
     }
 
     public void loadFramesFromPath(String path, double scaleFactor) {
         File dir = new File(path);
 
-        try {
-            for (File file : dir.listFiles()) {
-                File imageFile = new File(file.getPath());
-                this.frames.add(FrameAnimation.scaleImage(ImageIO.read(imageFile), scaleFactor));
-            }
-        }
-        catch (IOException e) {
-            System.out.println(e);
-        }
+        for (File file : dir.listFiles())
+            this.frames.add(FrameAnimation.loadImage(file.getPath(), scaleFactor));
     }
 }

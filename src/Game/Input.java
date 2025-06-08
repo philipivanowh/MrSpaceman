@@ -6,6 +6,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 /**
  * Input class handles keyboard and mouse inputs for the game.
@@ -16,7 +18,7 @@ import java.awt.event.MouseMotionListener;
  * It also maintains a camera reference to adjust mouse coordinates based on the camera's position.
  * * The class uses static arrays to store the state of keys and mouse buttons, 
  */
-public class Input implements KeyListener, MouseListener, MouseMotionListener {
+public class Input implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
     // key mask that stores if a key is pressed
     public static boolean[] keys = new boolean[1000];
@@ -26,6 +28,9 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
     // mouse button mask that stores if a button is pressed
     private static boolean[] mouseButtons = new boolean[4];
+
+    //Retain the information regarding to the mouse scroll
+    private static double scrollRotation = 0;
 
     // a reference to camera
     private static Camera camera;
@@ -46,6 +51,14 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
         return keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D];
     }
 
+    public static boolean isESCPressed(){
+        return keys[KeyEvent.VK_ESCAPE];
+    }
+    
+    public static boolean isResetZoomPressed(){
+        return keys[KeyEvent.VK_R];
+    }
+
     public static Vector2D getMouseRelativeToScreen() {
         return new Vector2D(mousePos.x, mousePos.y);
     }
@@ -56,6 +69,13 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
 
     public static boolean mouseIsClicked(){
         return mouseButtons[MouseEvent.BUTTON1];
+    }
+
+    public static double getScrollRotation(){
+        return scrollRotation;
+    }
+    public static void resetScrollRotation(){
+        scrollRotation = 0;
     }
 
     @Override
@@ -101,5 +121,10 @@ public class Input implements KeyListener, MouseListener, MouseMotionListener {
     @Override
     public void mouseReleased(MouseEvent e) {
         mouseButtons[e.getButton()] = false;
+    }
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        scrollRotation=e.getWheelRotation();
     }
 }
